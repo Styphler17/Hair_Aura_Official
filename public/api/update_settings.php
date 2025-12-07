@@ -32,9 +32,9 @@ function getValueOrNull($value) {
 // Map frontend field names to database column names with proper NULL handling
 $logo = getValueOrNull($data['logo'] ?? null);
 $favicon = getValueOrNull($data['favicon'] ?? null);
-$heroImage = getValueOrNull($data['heroImage'] ?? null);
-$defaultSocialImage = getValueOrNull($data['defaultSocialImage'] ?? null);
-$aboutImage = getValueOrNull($data['aboutImage'] ?? null);
+$heroImage = getValueOrNull($data['hero_image'] ?? null);
+$defaultSocialImage = getValueOrNull($data['default_social_image'] ?? null);
+$aboutImage = getValueOrNull($data['about_image'] ?? null);
 
 // Check if settings row exists
 $checkSql = "SELECT id FROM site_settings WHERE id = 1";
@@ -60,42 +60,42 @@ if ($checkResult->num_rows === 0) {
     }
     
     $id = 1;
-    $phoneNumber = $data['phoneNumber'] ?? '';
+    $phone_number = $data['phone_number'] ?? '';
     $address = $data['address'] ?? '';
-    $currencySymbol = $data['currencySymbol'] ?? 'GH₵';
-    $colorText = $data['colorText'] ?? '#0a0a0a';
-    $colorBackground = $data['colorBackground'] ?? '#ffffff';
-    $colorAccent = $data['colorAccent'] ?? '#D4AF37';
-    $heroHeadline = $data['heroHeadline'] ?? '';
-    $heroSubheadline = $data['heroSubheadline'] ?? '';
-    $heroCtaText = $data['heroCtaText'] ?? '';
-    $aboutTitle = $data['aboutTitle'] ?? 'Our Story';
-    $aboutContent = $data['aboutContent'] ?? '';
-    $contactTitle = $data['contactTitle'] ?? 'Get in Touch';
-    $contactContent = $data['contactContent'] ?? '';
-    $maintenanceMode = isset($data['maintenanceMode']) ? ($data['maintenanceMode'] ? 1 : 0) : 0;
+    $currency_symbol = $data['currency_symbol'] ?? 'GH₵';
+    $color_text = $data['color_text'] ?? '#0a0a0a';
+    $color_background = $data['color_background'] ?? '#ffffff';
+    $color_accent = $data['color_accent'] ?? '#D4AF37';
+    $hero_headline = $data['hero_headline'] ?? '';
+    $hero_subheadline = $data['hero_subheadline'] ?? '';
+    $hero_cta_text = $data['hero_cta_text'] ?? '';
+    $about_title = $data['about_title'] ?? 'Our Story';
+    $about_content = $data['about_content'] ?? '';
+    $contact_title = $data['contact_title'] ?? 'Get in Touch';
+    $contact_content = $data['contact_content'] ?? '';
+    $maintenance_mode = isset($data['maintenance_mode']) ? ($data['maintenance_mode'] ? 1 : 0) : 0;
     
     $stmt->bind_param("issssssssssssssssssi",
         $id,
-        $phoneNumber,
+        $phone_number,
         $address,
-        $currencySymbol,
-        $colorText,
-        $colorBackground,
-        $colorAccent,
+        $currency_symbol,
+        $color_text,
+        $color_background,
+        $color_accent,
         $logo,
         $favicon,
         $defaultSocialImage,
         $heroImage,
-        $heroHeadline,
-        $heroSubheadline,
-        $heroCtaText,
-        $aboutTitle,
-        $aboutContent,
+        $hero_headline,
+        $hero_subheadline,
+        $hero_cta_text,
+        $about_title,
+        $about_content,
         $aboutImage,
-        $contactTitle,
-        $contactContent,
-        $maintenanceMode
+        $contact_title,
+        $contact_content,
+        $maintenance_mode
     );
 } else {
     // Update existing row
@@ -129,41 +129,41 @@ if ($checkResult->num_rows === 0) {
         exit;
     }
     
-    $phoneNumber = $data['phoneNumber'] ?? '';
+    $phone_number = $data['phone_number'] ?? '';
     $address = $data['address'] ?? '';
-    $currencySymbol = $data['currencySymbol'] ?? 'GH₵';
-    $colorText = $data['colorText'] ?? '#0a0a0a';
-    $colorBackground = $data['colorBackground'] ?? '#ffffff';
-    $colorAccent = $data['colorAccent'] ?? '#D4AF37';
-    $heroHeadline = $data['heroHeadline'] ?? '';
-    $heroSubheadline = $data['heroSubheadline'] ?? '';
-    $heroCtaText = $data['heroCtaText'] ?? '';
-    $aboutTitle = $data['aboutTitle'] ?? 'Our Story';
-    $aboutContent = $data['aboutContent'] ?? '';
-    $contactTitle = $data['contactTitle'] ?? 'Get in Touch';
-    $contactContent = $data['contactContent'] ?? '';
-    $maintenanceMode = isset($data['maintenanceMode']) ? ($data['maintenanceMode'] ? 1 : 0) : 0;
+    $currency_symbol = $data['currency_symbol'] ?? 'GH₵';
+    $color_text = $data['color_text'] ?? '#0a0a0a';
+    $color_background = $data['color_background'] ?? '#ffffff';
+    $color_accent = $data['color_accent'] ?? '#D4AF37';
+    $hero_headline = $data['hero_headline'] ?? '';
+    $hero_subheadline = $data['hero_subheadline'] ?? '';
+    $hero_cta_text = $data['hero_cta_text'] ?? '';
+    $about_title = $data['about_title'] ?? 'Our Story';
+    $about_content = $data['about_content'] ?? '';
+    $contact_title = $data['contact_title'] ?? 'Get in Touch';
+    $contact_content = $data['contact_content'] ?? '';
+    $maintenance_mode = isset($data['maintenance_mode']) ? ($data['maintenance_mode'] ? 1 : 0) : 0;
     
     $stmt->bind_param("ssssssssssssssssssi",
-        $phoneNumber,
+        $phone_number,
         $address,
-        $currencySymbol,
-        $colorText,
-        $colorBackground,
-        $colorAccent,
+        $currency_symbol,
+        $color_text,
+        $color_background,
+        $color_accent,
         $logo,
         $favicon,
         $defaultSocialImage,
         $heroImage,
-        $heroHeadline,
-        $heroSubheadline,
-        $heroCtaText,
-        $aboutTitle,
-        $aboutContent,
+        $hero_headline,
+        $hero_subheadline,
+        $hero_cta_text,
+        $about_title,
+        $about_content,
         $aboutImage,
-        $contactTitle,
-        $contactContent,
-        $maintenanceMode
+        $contact_title,
+        $contact_content,
+        $maintenance_mode
     );
 }
 
@@ -171,7 +171,7 @@ if ($stmt->execute()) {
     $stmt->close();
     
     // Handle social links with smart update (UPDATE existing, INSERT new, DELETE removed)
-    if (isset($data['socialLinks']) && is_array($data['socialLinks'])) {
+    if (isset($data['social_links']) && is_array($data['social_links'])) {
         // Get existing social links from database
         $existingSql = "SELECT id, platform, url FROM social_links WHERE settings_id = 1";
         $existingResult = $conn->query($existingSql);
@@ -190,7 +190,7 @@ if ($stmt->execute()) {
         $newPlatforms = [];
         
         // Process each social link from the request
-        foreach ($data['socialLinks'] as $link) {
+        foreach ($data['social_links'] as $link) {
             if (!isset($link['platform']) || !isset($link['url'])) {
                 continue;
             }
@@ -227,6 +227,7 @@ if ($stmt->execute()) {
             }
         }
     }
+
     
     echo json_encode(['success' => true, 'message' => 'Settings updated successfully']);
 } else {

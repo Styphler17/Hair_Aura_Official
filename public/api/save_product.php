@@ -125,7 +125,7 @@ if ($isUpdate) {
     $description = $data['description'] ?? '';
     $image = $data['image'] ?? '';
     $category = $data['category'] ?? 'wigs';
-    $seoKeywords = $data['seoKeywords'] ?? '';
+    $seo_keywords = $data['seo_keywords'] ?? '';
     
     $stmt->bind_param("sdssssssss",
         $name,
@@ -136,7 +136,7 @@ if ($isUpdate) {
         $category,
         $tags,
         $colors,
-        $seoKeywords,
+        $seo_keywords,
         $data['id']
     );
     
@@ -186,7 +186,7 @@ if ($isUpdate) {
     $description = $data['description'] ?? '';
     $image = $data['image'] ?? '';
     $category = $data['category'] ?? 'wigs';
-    $seoKeywords = $data['seoKeywords'] ?? '';
+    $seo_keywords = $data['seo_keywords'] ?? '';
     
     $stmt->bind_param("ssdsssssss",
         $id,
@@ -198,7 +198,7 @@ if ($isUpdate) {
         $category,
         $tags,
         $colors,
-        $seoKeywords
+        $seo_keywords
     );
     
     if ($stmt->execute()) {

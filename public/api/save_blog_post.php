@@ -111,7 +111,7 @@ if ($isUpdate) {
     $content = $data['content'] ?? '';
     $image = $data['image'] ?? '';
     $author = $data['author'] ?? 'Admin';
-    $seoDescription = $data['seoDescription'] ?? $data['seo_description'] ?? '';
+    $seo_description = $data['seo_description'] ?? '';
     
     $stmt->bind_param("ssssssss",
         $title,
@@ -120,7 +120,7 @@ if ($isUpdate) {
         $image,
         $author,
         $date,
-        $seoDescription,
+        $seo_description,
         $data['id']
     );
     
@@ -167,7 +167,7 @@ if ($isUpdate) {
     $content = $data['content'] ?? '';
     $image = $data['image'] ?? '';
     $author = $data['author'] ?? 'Admin';
-    $seoDescription = $data['seoDescription'] ?? $data['seo_description'] ?? '';
+    $seo_description = $data['seo_description'] ?? '';
     
     $stmt->bind_param("ssssssss",
         $id,
@@ -177,7 +177,7 @@ if ($isUpdate) {
         $image,
         $author,
         $date,
-        $seoDescription
+        $seo_description
     );
     
     if ($stmt->execute()) {
