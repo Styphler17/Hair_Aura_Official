@@ -17,6 +17,8 @@ const AdminProfile: React.FC = () => {
   const [currentPass, setCurrentPass] = useState('');
   const [newPass, setNewPass] = useState('');
   const [confirmPass, setConfirmPass] = useState('');
+  const [showNewPass, setShowNewPass] = useState(false);
+  const [showConfirmPass, setShowConfirmPass] = useState(false);
 
   // New User State
   const [isAddingUser, setIsAddingUser] = useState(false);
@@ -246,23 +248,43 @@ const AdminProfile: React.FC = () => {
             <form onSubmit={handlePasswordUpdate} className="space-y-4">
               <div>
                 <label className="block text-[10px] font-bold text-aura-black mb-1 uppercase tracking-wider">New Password</label>
-                <input
-                  type="password"
-                  value={newPass}
-                  onChange={(e) => setNewPass(e.target.value)}
-                  className="w-full border border-neutral-300 p-3 text-sm focus:outline-none focus:border-aura-black focus:ring-1 focus:ring-aura-gold"
-                  style={inputStyle}
-                />
+                <div className="relative">
+                  <input
+                    type={showNewPass ? "text" : "password"}
+                    value={newPass}
+                    onChange={(e) => setNewPass(e.target.value)}
+                    className="w-full border border-neutral-300 p-3 pr-10 text-sm focus:outline-none focus:border-aura-black focus:ring-1 focus:ring-aura-gold"
+                    style={inputStyle}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowNewPass(!showNewPass)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-aura-black"
+                  >
+                    {showNewPass ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
               </div>
               <div>
                 <label className="block text-[10px] font-bold text-aura-black mb-1 uppercase tracking-wider">Confirm Password</label>
-                <input
-                  type="password"
-                  value={confirmPass}
-                  onChange={(e) => setConfirmPass(e.target.value)}
-                  className="w-full border border-neutral-300 p-3 text-sm focus:outline-none focus:border-aura-black focus:ring-1 focus:ring-aura-gold"
-                  style={inputStyle}
-                />
+                <div className="relative">
+                  <input
+                    type={showConfirmPass ? "text" : "password"}
+                    value={confirmPass}
+                    onChange={(e) => setConfirmPass(e.target.value)}
+                    className="w-full border border-neutral-300 p-3 pr-10 text-sm focus:outline-none focus:border-aura-black focus:ring-1 focus:ring-aura-gold"
+                    style={inputStyle}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPass(!showConfirmPass)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-neutral-400 hover:text-aura-black"
+                  >
+                    {showConfirmPass ? <EyeOff size={14} /> : <Eye size={14} />}
+                  </button>
+                </div>
               </div>
               <button type="submit" className="w-full bg-aura-black text-white px-4 py-3 uppercase text-xs font-bold tracking-widest hover:bg-neutral-800 transition-colors flex items-center justify-center gap-2 border border-aura-black hover:border-aura-gold hover:text-aura-gold mt-4">
                 <Lock size={14} /> Update

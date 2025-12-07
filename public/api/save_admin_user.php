@@ -149,7 +149,8 @@ if ($action === 'create') {
         $values[] = $data['email'];
     }
     
-    if (isset($data['password']) && !empty($data['password'])) {
+    // Always update password if provided (even if empty string, to allow password changes)
+    if (isset($data['password'])) {
         $updateFields[] = "password = ?";
         $types .= "s";
         $values[] = $data['password']; // In production, this should be hashed

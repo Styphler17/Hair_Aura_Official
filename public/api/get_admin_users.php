@@ -2,7 +2,7 @@
 // api/get_admin_users.php
 require 'db_connect.php';
 
-$sql = "SELECT id, name, email, role, avatar, last_login, created_at FROM admin_users ORDER BY created_at DESC";
+$sql = "SELECT id, name, email, password, role, avatar, last_login, created_at FROM admin_users ORDER BY created_at DESC";
 $result = $conn->query($sql);
 
 $users = [];
