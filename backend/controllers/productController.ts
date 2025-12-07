@@ -13,14 +13,22 @@ const initStorage = () => {
 };
 
 export const ProductController = {
-  getAll: (): Product[] => {
-    initStorage();
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : INITIAL_PRODUCTS;
+  getAll: async (): Promise<Product[]> => {
+    try {
+      const response = await fetch('https://hair-aura.debesties.com/api/get_products.php');
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching products:", error);
+      // Fallback to LocalStorage if API fails
+      initStorage();
+      const stored = localStorage.getItem(STORAGE_KEY);
+      return stored ? JSON.parse(stored) : INITIAL_PRODUCTS;
+    }
   },
 
-  create: (data: Omit<Product, 'id'>): Product => {
-    const products = ProductController.getAll();
+  create: async (data: Omit<Product, 'id'>): Promise<Product> => {
+    const products = await ProductController.getAll();
     const newProduct: Product = {
       ...data,
       id: Date.now().toString(),
@@ -30,8 +38,8 @@ export const ProductController = {
     return newProduct;
   },
 
-  update: (id: string, updates: Partial<Product>): Product | null => {
-    const products = ProductController.getAll();
+  update: async (id: string, updates: Partial<Product>): Promise<Product | null> => {
+    const products = await ProductController.getAll();
     const index = products.findIndex(p => p.id === id);
     if (index === -1) return null;
 
@@ -41,8 +49,8 @@ export const ProductController = {
     return updated;
   },
 
-  delete: (id: string): void => {
-    const products = ProductController.getAll();
+  delete: async (id: string): Promise<void> => {
+    const products = await ProductController.getAll();
     const filtered = products.filter(p => p.id !== id);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
   }

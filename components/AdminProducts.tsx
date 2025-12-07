@@ -35,8 +35,13 @@ const AdminProducts: React.FC = () => {
     setCurrency(SettingsController.getSettings().currencySymbol);
   }, []);
 
-  const refreshProducts = () => {
-    setProducts(ProductController.getAll());
+  const refreshProducts = async () => {
+    try {
+      const products = await ProductController.getAll();
+      setProducts(products);
+    } catch (error) {
+      console.error("Error refreshing products:", error);
+    }
   };
 
   const handleOpenModal = (product?: Product) => {
@@ -144,20 +149,32 @@ const AdminProducts: React.FC = () => {
       seoKeywords: formData.seoKeywords
     };
 
-    if (editingId) {
-      ProductController.update(editingId, productData);
-    } else {
-      ProductController.create(productData);
-    }
-    
-    setIsModalOpen(false);
-    refreshProducts();
+    const saveProduct = async () => {
+      try {
+        if (editingId) {
+          await ProductController.update(editingId, productData);
+        } else {
+          await ProductController.create(productData);
+        }
+        setIsModalOpen(false);
+        refreshProducts();
+      } catch (error) {
+        console.error("Error saving product:", error);
+        alert("Failed to save product. Please try again.");
+      }
+    };
+    saveProduct();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('Delete this product?')) {
-      ProductController.delete(id);
-      refreshProducts();
+      try {
+        await ProductController.delete(id);
+        refreshProducts();
+      } catch (error) {
+        console.error("Error deleting product:", error);
+        alert("Failed to delete product. Please try again.");
+      }
     }
   };
 

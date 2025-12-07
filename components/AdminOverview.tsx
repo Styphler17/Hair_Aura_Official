@@ -24,28 +24,35 @@ const AdminOverview: React.FC<{ onNavigate: (page: string) => void }> = ({ onNav
 
   useEffect(() => {
     // Fetch Data
-    const products = ProductController.getAll();
-    const blogs = BlogController.getAll();
-    const admins = AuthController.getUsers();
-    const settings = SettingsController.getSettings();
+    const fetchData = async () => {
+      try {
+        const products = await ProductController.getAll();
+        const blogs = BlogController.getAll();
+        const admins = AuthController.getUsers();
+        const settings = SettingsController.getSettings();
 
-    // Calculate Stats
-    const totalValue = products.reduce((acc, curr) => acc + curr.price, 0);
-    const wigs = products.filter(p => p.category === 'wigs').length;
-    const bundles = products.filter(p => p.category === 'bundles').length;
-    const closures = products.filter(p => p.category === 'closures').length;
+        // Calculate Stats
+        const totalValue = products.reduce((acc, curr) => acc + curr.price, 0);
+        const wigs = products.filter(p => p.category === 'wigs').length;
+        const bundles = products.filter(p => p.category === 'bundles').length;
+        const closures = products.filter(p => p.category === 'closures').length;
 
-    setStats({
-      totalProducts: products.length,
-      totalValue,
-      totalBlogs: blogs.length,
-      totalAdmins: admins.length,
-      categories: { wigs, bundles, closures }
-    });
+        setStats({
+          totalProducts: products.length,
+          totalValue,
+          totalBlogs: blogs.length,
+          totalAdmins: admins.length,
+          categories: { wigs, bundles, closures }
+        });
 
-    // Get 5 most recent products (assuming new ones are added to top/start of list)
-    setRecentProducts(products.slice(0, 5));
-    setCurrency(settings.currencySymbol);
+        // Get 5 most recent products (assuming new ones are added to top/start of list)
+        setRecentProducts(products.slice(0, 5));
+        setCurrency(settings.currencySymbol);
+      } catch (error) {
+        console.error("Error loading overview data:", error);
+      }
+    };
+    fetchData();
   }, []);
 
   const StatCard = ({ title, value, icon: Icon, subtext, accent = false }: any) => (

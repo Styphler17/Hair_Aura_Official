@@ -26,27 +26,34 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId, onNavigate }
 
   useEffect(() => {
     // Fetch Product using Controller (Same source as Admin)
-    const allProducts = ProductController.getAll();
-    const found = allProducts.find(p => p.id === productId);
-    const settings = SettingsController.getSettings();
-    setPhoneNumber(settings.phoneNumber);
-    setCurrency(settings.currencySymbol);
-    setSiteUrl(window.location.origin);
+    const fetchProduct = async () => {
+      try {
+        const allProducts = await ProductController.getAll();
+        const found = allProducts.find(p => p.id === productId);
+        const settings = SettingsController.getSettings();
+        setPhoneNumber(settings.phoneNumber);
+        setCurrency(settings.currencySymbol);
+        setSiteUrl(window.location.origin);
 
-    if (found) {
-      setProduct(found);
-      
-      const related = allProducts
-        .filter(p => p.category === found.category && p.id !== found.id)
-        .slice(0, 3);
-      setRelatedProducts(related);
+        if (found) {
+          setProduct(found);
+          
+          const related = allProducts
+            .filter(p => p.category === found.category && p.id !== found.id)
+            .slice(0, 3);
+          setRelatedProducts(related);
 
-      setInWishlist(WishlistService.isInWishlist(found.id));
-      setInCart(CartService.isInCart(found.id));
-      
-      setActiveImageIndex(0); 
-      window.scrollTo(0, 0);
-    }
+          setInWishlist(WishlistService.isInWishlist(found.id));
+          setInCart(CartService.isInCart(found.id));
+          
+          setActiveImageIndex(0); 
+          window.scrollTo(0, 0);
+        }
+      } catch (error) {
+        console.error("Error loading product:", error);
+      }
+    };
+    fetchProduct();
   }, [productId]);
 
   useEffect(() => {

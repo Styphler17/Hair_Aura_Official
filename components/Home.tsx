@@ -23,10 +23,17 @@ const Home: React.FC<HomeProps> = ({ onShopClick, onNavigate }) => {
   const [settings, setSettings] = useState<SiteSettings>(SettingsController.getSettings());
 
   useEffect(() => {
-    const allProducts = ProductController.getAll();
-    setFeaturedProducts(allProducts.slice(0, 3));
-    setLatestBlogs(BlogController.getAll().slice(0, 5));
-    setSettings(SettingsController.getSettings());
+    const fetchData = async () => {
+      try {
+        const allProducts = await ProductController.getAll();
+        setFeaturedProducts(allProducts.slice(0, 3));
+        setLatestBlogs(BlogController.getAll().slice(0, 5));
+        setSettings(SettingsController.getSettings());
+      } catch (error) {
+        console.error("Error loading featured products:", error);
+      }
+    };
+    fetchData();
   }, []);
   
   const tiktokPosts = [

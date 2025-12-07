@@ -28,12 +28,18 @@ const Shop: React.FC<ShopProps> = ({ onNavigate }) => {
 
   useEffect(() => {
     setIsLoading(true);
-    // Simulate loading delay for "luxury" feel, but fetch from correct Controller
-    const timer = setTimeout(() => {
-      setProducts(ProductController.getAll());
-      setIsLoading(false);
-    }, 800);
-    return () => clearTimeout(timer);
+    // Fetch from live API
+    const fetchProducts = async () => {
+      try {
+        const products = await ProductController.getAll();
+        setProducts(products);
+      } catch (error) {
+        console.error("Error loading products:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProducts();
   }, []);
 
   useEffect(() => {
