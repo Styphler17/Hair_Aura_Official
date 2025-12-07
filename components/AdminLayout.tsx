@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { ShoppingBag, Settings, User, LogOut, ExternalLink, Menu, X, BookOpen } from 'lucide-react';
+import { ShoppingBag, Settings, User, LogOut, ExternalLink, Menu, X, BookOpen, LayoutDashboard } from 'lucide-react';
 import BackToTop from './BackToTop';
 
 interface AdminLayoutProps {
@@ -51,6 +51,16 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage, onNavi
         </div>
 
         <nav className="flex-1 py-6 overflow-y-auto custom-scrollbar">
+          <div className="mb-8">
+             <p className="px-6 text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-4">Overview</p>
+             <ul>
+               <li onClick={() => { onNavigate('admin-overview'); setIsSidebarOpen(false); }} className={navItemClass('admin-overview')}>
+                <LayoutDashboard size={18} />
+                <span>Dashboard</span>
+              </li>
+             </ul>
+          </div>
+
           <div className="mb-8">
             <p className="px-6 text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-4">Store Management</p>
             <ul>
@@ -105,6 +115,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage, onNavi
               <Menu size={24} />
             </button>
             <h2 className="text-lg md:text-xl font-serif font-bold text-aura-black">
+              {currentPage === 'admin-overview' && 'Dashboard Overview'}
               {currentPage === 'admin-products' && 'Product Inventory'}
               {currentPage === 'admin-blog' && 'Blog Management'}
               {currentPage === 'admin-settings' && 'General Settings'}
