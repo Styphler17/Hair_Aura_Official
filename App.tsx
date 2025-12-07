@@ -15,6 +15,8 @@ import Terms from './components/Terms';
 import Privacy from './components/Privacy';
 import Blog from './components/Blog';
 import BlogPostPage from './components/BlogPost';
+import Maintenance from './components/Maintenance';
+import NotFound from './components/NotFound';
 import { InstagramIcon, TikTokIcon, WhatsAppIcon, SnapchatIcon } from './components/Icons';
 import { SettingsController } from './backend/controllers/settingsController';
 import { SiteSettings } from './backend/models';
@@ -38,17 +40,17 @@ const App: React.FC = () => {
       window.history.replaceState({}, document.title, window.location.pathname);
     }
 
-    if (!currentPage.startsWith('admin')) {
-      const currentSettings = SettingsController.getSettings();
-      setSettings(currentSettings);
-      
-      const handleSettingsUpdate = () => {
-        setSettings(SettingsController.getSettings());
-      };
-      
-      window.addEventListener('settings-updated', handleSettingsUpdate);
-      return () => window.removeEventListener('settings-updated', handleSettingsUpdate);
-    }
+    // Refresh settings on page change
+    const currentSettings = SettingsController.getSettings();
+    setSettings(currentSettings);
+    
+    const handleSettingsUpdate = () => {
+      setSettings(SettingsController.getSettings());
+    };
+    
+    window.addEventListener('settings-updated', handleSettingsUpdate);
+    return () => window.removeEventListener('settings-updated', handleSettingsUpdate);
+    
   }, [currentPage]);
 
   const handleNavigate = (page: string, id?: string) => {
@@ -66,6 +68,11 @@ const App: React.FC = () => {
         return <AdminLogin onLogin={() => setIsAdminAuthenticated(true)} />;
       }
       return <AdminDashboard currentPage={currentPage} onNavigate={handleNavigate} onLogout={() => setIsAdminAuthenticated(false)} />;
+    }
+
+    // Maintenance Mode Check
+    if (settings.maintenanceMode && !isAdminAuthenticated) {
+        return <Maintenance />;
     }
 
     // Public Routes
@@ -90,8 +97,8 @@ const App: React.FC = () => {
       case 'contact': return <Contact />;
       case 'terms': return <Terms />;
       case 'privacy': return <Privacy />;
-      case 'home':
-      default: return <Home onShopClick={() => { handleNavigate('shop'); }} onNavigate={handleNavigate} />;
+      case 'home': return <Home onShopClick={() => { handleNavigate('shop'); }} onNavigate={handleNavigate} />;
+      default: return <NotFound />; // Catch-all 404
     }
   };
 
@@ -107,6 +114,10 @@ const App: React.FC = () => {
     }
   };
 
+  // Only show header/footer if not Maintenance mode (or if admin is logged in)
+  const isMaintenanceVisible = settings.maintenanceMode && !isAdminAuthenticated && !currentPage.startsWith('admin');
+  const isAdminPage = currentPage.startsWith('admin');
+
   return (
     <div className="min-h-screen bg-white selection:bg-aura-black selection:text-white flex flex-col transition-colors duration-500" style={{ color: settings.colorText }}>
       <GlobalStyles />
@@ -115,7 +126,7 @@ const App: React.FC = () => {
         <SEOHead title="" description="" />
       )}
 
-      {!currentPage.startsWith('admin') && (
+      {!isAdminPage && !isMaintenanceVisible && (
         <Header onNavigate={handleNavigate} currentPage={currentPage} />
       )}
       
@@ -123,9 +134,9 @@ const App: React.FC = () => {
         {renderPage()}
       </main>
 
-      {!currentPage.startsWith('admin') && <BackToTop />}
+      {!isAdminPage && !isMaintenanceVisible && <BackToTop />}
 
-      {!currentPage.startsWith('admin') && (
+      {!isAdminPage && !isMaintenanceVisible && (
         <footer className="bg-white border-t border-neutral-100 pt-16 pb-8 mt-auto">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-8">
             <div className="text-center md:text-left cursor-pointer" onClick={() => { handleNavigate('home'); }}>

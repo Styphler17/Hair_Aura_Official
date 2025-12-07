@@ -4,8 +4,8 @@ import { ProductController } from '../backend/controllers/productController';
 import { BlogController } from '../backend/controllers/blogController';
 import { AuthController } from '../backend/controllers/authController';
 import { SettingsController } from '../backend/controllers/settingsController';
-import { ShoppingBag, BookOpen, Users, DollarSign, TrendingUp, Package, ArrowUpRight } from 'lucide-react';
-import { Product, BlogPost } from '../backend/models';
+import { ShoppingBag, BookOpen, Users, DollarSign, ArrowUpRight } from 'lucide-react';
+import { Product } from '../backend/models';
 
 const AdminOverview: React.FC<{ onNavigate: (page: string) => void }> = ({ onNavigate }) => {
   const [stats, setStats] = useState({

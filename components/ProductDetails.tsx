@@ -194,7 +194,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId, onNavigate }
             </div>
             <h1 className="font-serif text-3xl md:text-5xl font-bold text-aura-black mb-4 leading-tight">{product.name}</h1>
             
-            <div className="flex items-center gap-4 mb-8">
+            <div className="flex items-center gap-4 mb-6">
               <span className="text-2xl font-bold text-aura-black">{currency}{product.price.toLocaleString()}</span>
               {product.tags?.map(tag => (
                 <span key={tag} className="bg-aura-black text-white px-2 py-1 text-[10px] font-bold uppercase tracking-wider">
@@ -202,6 +202,20 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId, onNavigate }
                 </span>
               ))}
             </div>
+
+            {/* Colors */}
+            {product.colors && product.colors.length > 0 && (
+                <div className="mb-8">
+                    <p className="text-xs font-bold uppercase tracking-widest text-aura-black mb-3">Available Colors</p>
+                    <div className="flex flex-wrap gap-2">
+                        {product.colors.map((color, idx) => (
+                            <span key={idx} className="border border-neutral-200 px-3 py-1 text-xs text-neutral-600 uppercase tracking-wider bg-neutral-50 rounded-sm">
+                                {color}
+                            </span>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             <div className="prose prose-sm text-neutral-600 font-light leading-relaxed mb-10">
               <p>{product.description}</p>

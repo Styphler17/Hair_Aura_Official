@@ -36,7 +36,9 @@ const DEFAULT_SETTINGS: SiteSettings = {
   aboutTitle: 'Our Story',
   aboutContent: `Hair Aura was born from a desire to bring uncompromising quality to the hair extension market. We noticed a gap between high-end promises and actual product longevity. Our mission became clear: source only the finest raw virgin hair, ensuring that every bundle, wig, and closure meets our rigorous standards of excellence.\n\nWe believe that hair is an accessory that should empower you. Whether you are looking for a professional sleek look or vacation curls, our collection is curated to enhance your natural beauty without the hassle of tangling or shedding.`,
   contactTitle: 'Get in Touch',
-  contactContent: `We operate exclusively online and via WhatsApp to ensure a personalized luxury experience for our clients in Ghana. Connect with us directly for consultations and orders.`
+  contactContent: `We operate exclusively online and via WhatsApp to ensure a personalized luxury experience for our clients in Ghana. Connect with us directly for consultations and orders.`,
+
+  maintenanceMode: false
 };
 
 export const SettingsController = {
@@ -59,6 +61,7 @@ export const SettingsController = {
         aboutContent: parsed.aboutContent || DEFAULT_SETTINGS.aboutContent,
         contactTitle: parsed.contactTitle || DEFAULT_SETTINGS.contactTitle,
         contactContent: parsed.contactContent || DEFAULT_SETTINGS.contactContent,
+        maintenanceMode: parsed.maintenanceMode || false,
       };
     }
     return DEFAULT_SETTINGS;

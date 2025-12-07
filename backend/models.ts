@@ -8,6 +8,7 @@ export interface Product {
   images?: string[]; // Gallery images
   category: 'wigs' | 'bundles' | 'closures';
   tags?: string[];
+  colors?: string[]; // New: Available colors
   seoKeywords?: string;
 }
 
@@ -62,6 +63,8 @@ export interface SiteSettings {
   aboutContent: string; // Supports simple text or HTML if needed
   contactTitle: string;
   contactContent: string;
+  
+  maintenanceMode: boolean; // New: Toggle for maintenance page
 }
 
 export type AdminRole = 'Super Admin' | 'Editor' | 'Viewer';

@@ -33,6 +33,7 @@ CREATE TABLE `products` (
   `images` JSON, -- Array of additional image URLs
   `category` ENUM('wigs', 'bundles', 'closures') NOT NULL,
   `tags` JSON, -- Array of visual tags e.g. ["Best Seller", "HD Lace"]
+  `colors` JSON, -- Array of available colors e.g. ["Natural Black", "613 Blonde"]
   `seo_keywords` TEXT, -- Comma separated keywords
   `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -69,6 +70,8 @@ CREATE TABLE `site_settings` (
   `about_content` TEXT,
   `contact_title` VARCHAR(255) DEFAULT 'Get in Touch',
   `contact_content` TEXT,
+  
+  `maintenance_mode` BOOLEAN DEFAULT FALSE,
   
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

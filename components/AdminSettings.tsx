@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { SettingsController } from '../backend/controllers/settingsController';
 import { SiteSettings, SocialLink } from '../backend/models';
-import { Save, Upload, Plus, Trash2, Layout, Palette, RefreshCcw, Check, Share2, Loader, FileText } from 'lucide-react';
+import { Save, Upload, Plus, Trash2, Layout, Palette, Share2, Loader, FileText, AlertTriangle } from 'lucide-react';
 import { optimizeImage } from '../utils/fileHelpers';
 
 const AdminSettings: React.FC = () => {
@@ -14,7 +14,7 @@ const AdminSettings: React.FC = () => {
     setSettings(SettingsController.getSettings());
   }, []);
 
-  const handleChange = (field: keyof SiteSettings, value: string) => {
+  const handleChange = (field: keyof SiteSettings, value: any) => {
     if (settings) {
       setSettings({ ...settings, [field]: value });
     }
@@ -107,6 +107,33 @@ const AdminSettings: React.FC = () => {
 
       <form onSubmit={handleSave} className="space-y-8 bg-white p-8 border border-neutral-200 rounded-sm shadow-sm w-full">
         
+        {/* Maintenance Mode */}
+        <section className="bg-neutral-50 p-6 border border-neutral-100 rounded-sm">
+             <div className="flex items-center justify-between">
+                <div>
+                   <h3 className="text-xs font-bold uppercase tracking-widest text-aura-black mb-1 flex items-center gap-2">
+                      <AlertTriangle size={14} className="text-aura-gold"/> Maintenance Mode
+                   </h3>
+                   <p className="text-[10px] text-neutral-400">When active, only admins can access the site. Visitors will see a "Under Maintenance" page.</p>
+                </div>
+                <div className="relative inline-block w-12 mr-2 align-middle select-none transition duration-200 ease-in">
+                    <input 
+                        type="checkbox" 
+                        name="toggle" 
+                        id="toggle" 
+                        checked={settings.maintenanceMode}
+                        onChange={(e) => handleChange('maintenanceMode', e.target.checked)}
+                        className="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 appearance-none cursor-pointer border-neutral-300 checked:right-0 checked:border-aura-gold transition-all duration-300 top-0 left-0"
+                        style={{ right: settings.maintenanceMode ? '0' : 'auto', left: settings.maintenanceMode ? 'auto' : '0' }}
+                    />
+                    <label 
+                        htmlFor="toggle" 
+                        className={`toggle-label block overflow-hidden h-6 rounded-full cursor-pointer transition-colors duration-300 ${settings.maintenanceMode ? 'bg-aura-black' : 'bg-neutral-300'}`}
+                    ></label>
+                </div>
+             </div>
+        </section>
+
         {/* Homepage Hero Configuration */}
         <section>
           <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-6 border-b border-neutral-100 pb-2 flex items-center gap-2">

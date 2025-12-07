@@ -76,7 +76,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
                 onClick={() => handleNav(page)} 
                 className={`cursor-pointer uppercase text-xs tracking-widest font-bold transition-all duration-300 pb-1 border-b-2`}
                 style={{ 
-                  color: isActive(page) ? settings.colorText : '#737373', // Neutral-500 default
+                  color: isActive(page) ? settings.colorText : '#737373', 
                   borderColor: isActive(page) ? settings.colorAccent : 'transparent'
                 }}
                 onMouseEnter={(e) => e.currentTarget.style.color = settings.colorText}
