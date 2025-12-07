@@ -1,8 +1,13 @@
 import React from 'react';
+import SEOHead from './SEOHead';
 
 const About: React.FC = () => {
   return (
     <div className="bg-white">
+      <SEOHead 
+        title="Our Story" 
+        description="Learn about the Aura Standard. We source 100% virgin, single-donor hair ethically and provide the highest quality HD lace in Ghana."
+      />
       {/* Header */}
       <div className="bg-neutral-50 py-24 text-center px-4">
         <h1 className="text-4xl md:text-6xl font-serif font-bold mb-4 text-aura-black">Our Story</h1>
