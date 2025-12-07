@@ -61,6 +61,7 @@ export interface SiteSettings {
   // Page Content Management
   aboutTitle: string;
   aboutContent: string; // Supports simple text or HTML if needed
+  aboutImage?: string; // Background image for About page
   contactTitle: string;
   contactContent: string;
   

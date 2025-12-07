@@ -68,6 +68,7 @@ CREATE TABLE `site_settings` (
   -- Page Content
   `about_title` VARCHAR(255) DEFAULT 'Our Story',
   `about_content` TEXT,
+  `about_image` LONGTEXT, -- Background image for About page
   `contact_title` VARCHAR(255) DEFAULT 'Get in Touch',
   `contact_content` TEXT,
   

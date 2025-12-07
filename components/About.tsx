@@ -62,7 +62,11 @@ const About: React.FC = () => {
       
       {/* Visual Break */}
       <div className="h-96 w-full relative">
-         <img src="https://picsum.photos/id/1005/1920/600" alt="Texture shot" className="w-full h-full object-cover grayscale" />
+         <img 
+           src={settings.aboutImage || "https://picsum.photos/id/1005/1920/600"} 
+           alt="Hair Aura texture" 
+           className="w-full h-full object-cover grayscale" 
+         />
       </div>
     </div>
   );

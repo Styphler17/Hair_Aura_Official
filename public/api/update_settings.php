@@ -34,6 +34,7 @@ $logo = getValueOrNull($data['logo'] ?? null);
 $favicon = getValueOrNull($data['favicon'] ?? null);
 $heroImage = getValueOrNull($data['heroImage'] ?? null);
 $defaultSocialImage = getValueOrNull($data['defaultSocialImage'] ?? null);
+$aboutImage = getValueOrNull($data['aboutImage'] ?? null);
 
 // Check if settings row exists
 $checkSql = "SELECT id FROM site_settings WHERE id = 1";
@@ -46,9 +47,9 @@ if ($checkResult->num_rows === 0) {
         color_text, color_background, color_accent,
         logo, favicon, default_social_image, hero_image,
         hero_headline, hero_subheadline, hero_cta_text,
-        about_title, about_content, contact_title, contact_content,
+        about_title, about_content, about_image, contact_title, contact_content,
         maintenance_mode
-    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
     
     $stmt = $conn->prepare($sql);
     if (!$stmt) {
@@ -74,7 +75,7 @@ if ($checkResult->num_rows === 0) {
     $contactContent = $data['contactContent'] ?? '';
     $maintenanceMode = isset($data['maintenanceMode']) ? ($data['maintenanceMode'] ? 1 : 0) : 0;
     
-    $stmt->bind_param("isssssssssssssssssi",
+    $stmt->bind_param("issssssssssssssssssi",
         $id,
         $phoneNumber,
         $address,
@@ -91,6 +92,7 @@ if ($checkResult->num_rows === 0) {
         $heroCtaText,
         $aboutTitle,
         $aboutContent,
+        $aboutImage,
         $contactTitle,
         $contactContent,
         $maintenanceMode
@@ -113,6 +115,7 @@ if ($checkResult->num_rows === 0) {
         hero_cta_text = ?,
         about_title = ?,
         about_content = ?,
+        about_image = ?,
         contact_title = ?,
         contact_content = ?,
         maintenance_mode = ?
@@ -141,7 +144,7 @@ if ($checkResult->num_rows === 0) {
     $contactContent = $data['contactContent'] ?? '';
     $maintenanceMode = isset($data['maintenanceMode']) ? ($data['maintenanceMode'] ? 1 : 0) : 0;
     
-    $stmt->bind_param("sssssssssssssssssi",
+    $stmt->bind_param("ssssssssssssssssssi",
         $phoneNumber,
         $address,
         $currencySymbol,
@@ -157,6 +160,7 @@ if ($checkResult->num_rows === 0) {
         $heroCtaText,
         $aboutTitle,
         $aboutContent,
+        $aboutImage,
         $contactTitle,
         $contactContent,
         $maintenanceMode
@@ -233,4 +237,3 @@ if ($stmt->execute()) {
 
 $conn->close();
 ?>
-

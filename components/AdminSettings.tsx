@@ -41,7 +41,7 @@ const AdminSettings: React.FC = () => {
     }
   };
 
-  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'logo' | 'favicon' | 'heroImage' | 'defaultSocialImage') => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'logo' | 'favicon' | 'heroImage' | 'defaultSocialImage' | 'aboutImage') => {
     const file = e.target.files?.[0];
     if (file && settings) {
       setIsProcessing(true);
@@ -246,6 +246,42 @@ const AdminSettings: React.FC = () => {
                 className="w-full border border-neutral-300 p-3 text-sm focus:outline-none focus:border-aura-black focus:ring-1 focus:ring-aura-gold resize-none"
                 style={inputStyle}
               />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-aura-black mb-2">About Page Background Image</label>
+              <div className="space-y-2">
+                <div className="relative w-full h-32 bg-neutral-100 border border-neutral-200 overflow-hidden group">
+                  {settings.aboutImage ? (
+                    <img 
+                      src={settings.aboutImage} 
+                      alt="About Background" 
+                      className="w-full h-full object-cover grayscale" 
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-xs text-neutral-400">
+                      No background image set
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                    <label className="cursor-pointer bg-white text-aura-black px-4 py-2 text-xs font-bold uppercase tracking-widest hover:bg-aura-gold hover:text-white transition-colors flex items-center gap-2">
+                      {isProcessing ? <Loader size={14} className="animate-spin"/> : <Upload size={14} />} Change Image
+                      <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, 'aboutImage')} />
+                    </label>
+                  </div>
+                </div>
+                <div>
+                  <label className="block text-[10px] font-bold text-neutral-500 mb-1">Or enter image path/URL:</label>
+                  <input
+                    type="text"
+                    value={settings.aboutImage || ''}
+                    onChange={(e) => handleChange('aboutImage', e.target.value)}
+                    placeholder="https://example.com/image.jpg or /uploads/image.jpg"
+                    className="w-full border border-neutral-300 p-2 text-xs focus:outline-none focus:border-aura-black focus:ring-1 focus:ring-aura-gold"
+                    style={inputStyle}
+                  />
+                </div>
+              </div>
             </div>
 
             <div>

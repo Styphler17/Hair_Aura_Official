@@ -88,7 +88,9 @@ const Contact: React.FC = () => {
               <WhatsAppIcon size={18} />
               <span className="font-bold text-sm uppercase tracking-widest">Phone</span>
             </div>
-            <p className="text-neutral-500 text-sm">+{settings.phoneNumber}</p>
+            <a href={`tel:+${settings.phoneNumber}`} className="text-neutral-500 hover:text-aura-black text-sm transition-colors">
+              +{settings.phoneNumber}
+            </a>
           </div>
         </div>
       </div>
