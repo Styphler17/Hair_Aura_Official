@@ -97,8 +97,10 @@ const AdminProducts: React.FC = () => {
                 continue;
             }
 
-            const optimizedDataUrl = await optimizeImage(file);
-            newImages.push(optimizedDataUrl);
+            // Upload file to server and get URL
+            const { uploadFile } = await import('../services/uploadService');
+            const uploadedUrl = await uploadFile(file);
+            newImages.push(uploadedUrl);
         }
 
         const updatedImageList = [...currentImages, ...newImages];
@@ -108,8 +110,8 @@ const AdminProducts: React.FC = () => {
             image: updatedImageList[0] || prev.image
         }));
     } catch (err) {
-        console.error("Optimization failed", err);
-        alert("Failed to process image.");
+        console.error("Upload failed", err);
+        alert("Failed to upload image. Please try again.");
     } finally {
         setIsProcessing(false);
         setDragActive(false);

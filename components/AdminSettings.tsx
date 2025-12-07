@@ -38,11 +38,13 @@ const AdminSettings: React.FC = () => {
     if (file && settings) {
       setIsProcessing(true);
       try {
-          const optimized = await optimizeImage(file, field === 'favicon' ? 128 : 1920);
-          setSettings({ ...settings, [field]: optimized });
+          // Upload file to server and get URL
+          const { uploadFile } = await import('../services/uploadService');
+          const uploadedUrl = await uploadFile(file);
+          setSettings({ ...settings, [field]: uploadedUrl });
       } catch (err) {
-          console.error("Image optimization failed", err);
-          alert("Failed to process image.");
+          console.error("Upload failed", err);
+          alert("Failed to upload image. Please try again.");
       } finally {
           setIsProcessing(false);
       }

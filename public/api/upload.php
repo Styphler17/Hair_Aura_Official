@@ -1,8 +1,12 @@
 <?php
 // api/upload.php
+// Handles file uploads to the server and optionally saves metadata to database
+require 'db_connect.php';
+
 header("Access-Control-Allow-Origin: *");
 header("Access-Control-Allow-Methods: POST");
 header("Access-Control-Allow-Headers: Content-Type");
+header("Content-Type: application/json; charset=UTF-8");
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -45,10 +49,38 @@ if (move_uploaded_file($file['tmp_name'], $targetPath)) {
     $host = $_SERVER['HTTP_HOST'];
     $publicUrl = "$protocol://$host/uploads/$filename";
     
-    echo json_encode(['url' => $publicUrl]);
+    // Optional: Save file metadata to database (if uploaded_files table exists)
+    try {
+        // Check if uploaded_files table exists
+        $checkTable = $conn->query("SHOW TABLES LIKE 'uploaded_files'");
+        if ($checkTable && $checkTable->num_rows > 0) {
+            $originalFilename = $file['name'];
+            $fileType = $file['type'];
+            $fileSize = $file['size'];
+            $usedIn = isset($_POST['used_in']) ? $_POST['used_in'] : null;
+            $referenceId = isset($_POST['reference_id']) ? $_POST['reference_id'] : null;
+            
+            $stmt = $conn->prepare("INSERT INTO uploaded_files (filename, original_filename, file_path, file_url, file_type, file_size, used_in, reference_id) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+            $stmt->bind_param("sssssiss", $filename, $originalFilename, $targetPath, $publicUrl, $fileType, $fileSize, $usedIn, $referenceId);
+            $stmt->execute();
+            $stmt->close();
+        }
+    } catch (Exception $e) {
+        // Silently fail if table doesn't exist or insert fails
+        // File is still uploaded successfully
+        error_log("File metadata save failed: " . $e->getMessage());
+    }
+    
+    echo json_encode([
+        'url' => $publicUrl,
+        'filename' => $filename,
+        'path' => $targetPath
+    ]);
 } else {
     http_response_code(500);
     echo json_encode(['error' => 'Failed to save file']);
 }
+
+$conn->close();
 ?>
 

@@ -127,3 +127,8 @@ dist
 
 # Vite build output
 dist/
+
+# Uploaded files (keep folder structure, ignore actual files)
+public/uploads/*
+!public/uploads/.gitkeep
+!public/uploads/README.md
