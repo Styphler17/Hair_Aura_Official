@@ -53,8 +53,27 @@ const SEOHead: React.FC<SEOHeadProps> = ({ title, description, keywords, image }
     // Featured Image Logic: Product Image > Blog Image > Default Setting > Hero Image
     const shareImage = image || settings.defaultSocialImage || settings.heroImage;
     if (shareImage) {
-        updateMeta('meta[property="og:image"]', shareImage);
+        // Ensure absolute URL for social sharing
+        const absoluteImageUrl = shareImage.startsWith('http') 
+          ? shareImage 
+          : `${window.location.origin}${shareImage.startsWith('/') ? '' : '/'}${shareImage}`;
+        
+        updateMeta('meta[property="og:image"]', absoluteImageUrl);
+        updateMeta('meta[property="og:image:width"]', '1200');
+        updateMeta('meta[property="og:image:height"]', '630');
+        updateMeta('meta[property="og:image:alt"]', title);
+        
+        // Twitter Card meta tags
+        updateMeta('meta[name="twitter:card"]', 'summary_large_image');
+        updateMeta('meta[name="twitter:title"]', siteTitle);
+        updateMeta('meta[name="twitter:description"]', description || settings.heroSubheadline);
+        updateMeta('meta[name="twitter:image"]', absoluteImageUrl);
+        updateMeta('meta[name="twitter:image:alt"]', title);
     }
+    
+    // Additional Open Graph tags
+    updateMeta('meta[property="og:site_name"]', 'Hair Aura Ghana');
+    updateMeta('meta[property="og:locale"]', 'en_GH');
 
     // Dynamic Favicon
     if (settings.favicon) {
