@@ -2,11 +2,13 @@
 import React, { useState, useEffect } from 'react';
 import { SettingsController } from '../backend/controllers/settingsController';
 import { SiteSettings, SocialLink } from '../backend/models';
-import { Save, Upload, Plus, Trash2, Layout, Palette, RefreshCcw, Check, Share2 } from 'lucide-react';
+import { Save, Upload, Plus, Trash2, Layout, Palette, RefreshCcw, Check, Share2, Loader } from 'lucide-react';
+import { optimizeImage } from '../utils/fileHelpers';
 
 const AdminSettings: React.FC = () => {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
   const [successMsg, setSuccessMsg] = useState('');
+  const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
     setSettings(SettingsController.getSettings());
@@ -27,14 +29,19 @@ const AdminSettings: React.FC = () => {
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, field: 'logo' | 'favicon' | 'heroImage' | 'defaultSocialImage') => {
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'logo' | 'favicon' | 'heroImage' | 'defaultSocialImage') => {
     const file = e.target.files?.[0];
     if (file && settings) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setSettings({ ...settings, [field]: reader.result as string });
-      };
-      reader.readAsDataURL(file);
+      setIsProcessing(true);
+      try {
+          const optimized = await optimizeImage(file, field === 'favicon' ? 128 : 1920);
+          setSettings({ ...settings, [field]: optimized });
+      } catch (err) {
+          console.error("Image optimization failed", err);
+          alert("Failed to process image.");
+      } finally {
+          setIsProcessing(false);
+      }
     }
   };
 
@@ -117,7 +124,7 @@ const AdminSettings: React.FC = () => {
                 />
                 <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
                   <label className="cursor-pointer bg-white text-aura-black px-4 py-2 text-xs font-bold uppercase tracking-widest hover:bg-aura-gold hover:text-white transition-colors flex items-center gap-2">
-                    <Upload size={14} /> Change Image
+                    {isProcessing ? <Loader size={14} className="animate-spin"/> : <Upload size={14} />} Change Image
                     <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, 'heroImage')} />
                   </label>
                 </div>
@@ -179,7 +186,7 @@ const AdminSettings: React.FC = () => {
                   )}
                 </div>
                 <label className="cursor-pointer bg-white border border-neutral-300 px-4 py-2 text-xs font-bold uppercase tracking-widest hover:bg-neutral-50 flex items-center gap-2">
-                  <Upload size={14} /> Upload Logo
+                  {isProcessing ? <Loader size={14} className="animate-spin"/> : <Upload size={14} />} Upload Logo
                   <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, 'logo')} />
                 </label>
               </div>
@@ -197,7 +204,7 @@ const AdminSettings: React.FC = () => {
                   )}
                 </div>
                  <label className="cursor-pointer bg-white border border-neutral-300 px-4 py-2 text-xs font-bold uppercase tracking-widest hover:bg-neutral-50 flex items-center gap-2">
-                  <Upload size={14} /> Upload Icon
+                  {isProcessing ? <Loader size={14} className="animate-spin"/> : <Upload size={14} />} Upload Icon
                   <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, 'favicon')} />
                 </label>
               </div>
@@ -216,7 +223,7 @@ const AdminSettings: React.FC = () => {
                   )}
                 </div>
                  <label className="cursor-pointer bg-white border border-neutral-300 px-4 py-2 text-xs font-bold uppercase tracking-widest hover:bg-neutral-50 flex items-center gap-2">
-                  <Upload size={14} /> Upload Image
+                  {isProcessing ? <Loader size={14} className="animate-spin"/> : <Upload size={14} />} Upload Image
                   <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, 'defaultSocialImage')} />
                 </label>
               </div>
@@ -422,8 +429,8 @@ const AdminSettings: React.FC = () => {
         <div className="pt-4 flex items-center justify-between border-t border-neutral-100 mt-8">
             {successMsg && <span className="text-green-600 text-xs font-bold">{successMsg}</span>}
             <div className="flex-1"></div>
-            <button type="submit" className="bg-aura-black text-white px-8 py-3 uppercase text-xs font-bold tracking-widest hover:bg-neutral-800 transition-colors flex items-center gap-2 border border-aura-black hover:border-aura-gold hover:text-aura-gold">
-                <Save size={16} /> Save Settings
+            <button type="submit" disabled={isProcessing} className="bg-aura-black text-white px-8 py-3 uppercase text-xs font-bold tracking-widest hover:bg-neutral-800 transition-colors flex items-center gap-2 border border-aura-black hover:border-aura-gold hover:text-aura-gold disabled:opacity-50">
+                {isProcessing ? <Loader size={16} className="animate-spin" /> : <Save size={16} />} Save Settings
             </button>
         </div>
 

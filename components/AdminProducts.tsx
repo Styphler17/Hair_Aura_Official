@@ -1,14 +1,21 @@
+
 import React, { useState, useEffect } from 'react';
 import { ProductController } from '../backend/controllers/productController';
 import { Product } from '../backend/models';
 import { SettingsController } from '../backend/controllers/settingsController';
-import { Trash2, Plus, X, Edit2, ImageIcon } from 'lucide-react';
+import { Trash2, Plus, X, Edit2, ImageIcon, Upload, Link, Loader } from 'lucide-react';
+import { optimizeImage, validateFile } from '../utils/fileHelpers';
 
 const AdminProducts: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [currency, setCurrency] = useState('GH₵');
+  
+  // Upload State
+  const [uploadMode, setUploadMode] = useState<'url' | 'file'>('file');
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [dragActive, setDragActive] = useState(false);
   
   // Form State
   const [formData, setFormData] = useState({
@@ -44,11 +51,77 @@ const AdminProducts: React.FC = () => {
         tags: product.tags ? product.tags.join(', ') : '',
         seoKeywords: product.seoKeywords || ''
       });
+      // Detect if the existing image looks like a URL or Data URI to set initial mode, default to URL for editing existing unless it's huge data uri
+      setUploadMode('url');
     } else {
       setEditingId(null);
       setFormData({ name: '', price: '', description: '', image: '', images: '', category: 'wigs', tags: '', seoKeywords: '' });
+      setUploadMode('file');
     }
     setIsModalOpen(true);
+  };
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === 'dragenter' || e.type === 'dragover') {
+      setDragActive(true);
+    } else if (e.type === 'dragleave') {
+      setDragActive(false);
+    }
+  };
+
+  const processFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+    
+    setIsProcessing(true);
+    const newImages: string[] = [];
+
+    // If existing images exist and we are adding to them, keep them
+    // For this simple implementation, uploading new files replaces the list or adds to it? 
+    // Let's assume appending to the text field for now.
+    const currentImages = formData.images ? formData.images.split(',').map(s => s.trim()).filter(Boolean) : [];
+
+    try {
+        for (let i = 0; i < files.length; i++) {
+            const file = files[i];
+            const error = validateFile(file, 'image');
+            if (error) {
+                alert(error);
+                continue;
+            }
+
+            // Optimize
+            const optimizedDataUrl = await optimizeImage(file);
+            newImages.push(optimizedDataUrl);
+        }
+
+        const updatedImageList = [...currentImages, ...newImages];
+        setFormData(prev => ({
+            ...prev,
+            images: updatedImageList.join(', '),
+            image: updatedImageList[0] || prev.image // Set main image if empty
+        }));
+    } catch (err) {
+        console.error("Optimization failed", err);
+        alert("Failed to process image.");
+    } finally {
+        setIsProcessing(false);
+        setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      processFiles(e.dataTransfer.files);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    processFiles(e.target.files);
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -240,20 +313,87 @@ const AdminProducts: React.FC = () => {
                 />
               </div>
 
-              {/* Image URL */}
+              {/* Image Upload / URL Selection */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-aura-black">Image URLs (Comma separated for carousel)</label>
-                <textarea 
-                  rows={2}
-                  required
-                  placeholder="https://image1.jpg, https://image2.jpg"
-                  className="w-full bg-white border border-neutral-300 p-3 text-sm text-aura-black focus:outline-none focus:border-aura-gold focus:ring-1 focus:ring-aura-gold resize-none transition-all"
-                  value={formData.images}
-                  onChange={e => {
-                     setFormData({...formData, images: e.target.value, image: e.target.value.split(',')[0].trim()});
-                  }}
-                  style={{ backgroundColor: '#ffffff' }}
-                />
+                <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-aura-black">Product Images</label>
+                <div className="flex gap-4 mb-4">
+                    <button 
+                        type="button" 
+                        onClick={() => setUploadMode('file')}
+                        className={`flex-1 py-2 text-xs uppercase font-bold tracking-widest border ${uploadMode === 'file' ? 'bg-aura-black text-white border-aura-black' : 'bg-white text-neutral-500 border-neutral-200 hover:border-aura-black'}`}
+                    >
+                        <Upload size={14} className="inline mr-2" /> Upload File
+                    </button>
+                    <button 
+                        type="button" 
+                        onClick={() => setUploadMode('url')}
+                        className={`flex-1 py-2 text-xs uppercase font-bold tracking-widest border ${uploadMode === 'url' ? 'bg-aura-black text-white border-aura-black' : 'bg-white text-neutral-500 border-neutral-200 hover:border-aura-black'}`}
+                    >
+                        <Link size={14} className="inline mr-2" /> Paste URL
+                    </button>
+                </div>
+
+                {uploadMode === 'file' ? (
+                     <div 
+                        className={`relative border-2 border-dashed rounded-sm p-8 text-center transition-all ${dragActive ? 'border-aura-gold bg-aura-gold/5' : 'border-neutral-300 bg-neutral-50 hover:bg-white'}`}
+                        onDragEnter={handleDrag}
+                        onDragLeave={handleDrag}
+                        onDragOver={handleDrag}
+                        onDrop={handleDrop}
+                     >
+                        <input 
+                            type="file" 
+                            multiple 
+                            accept="image/*"
+                            onChange={handleFileChange}
+                            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                        />
+                        {isProcessing ? (
+                            <div className="flex flex-col items-center text-aura-gold">
+                                <Loader size={32} className="animate-spin mb-2" />
+                                <span className="text-xs font-bold uppercase tracking-widest">Optimizing Images...</span>
+                            </div>
+                        ) : (
+                            <div className="flex flex-col items-center text-neutral-400">
+                                <ImageIcon size={32} className="mb-2" />
+                                <span className="text-xs font-bold uppercase tracking-widest mb-1">Drag & Drop or Click to Upload</span>
+                                <span className="text-[10px]">JPG, PNG, WebP (Max 10MB)</span>
+                            </div>
+                        )}
+                     </div>
+                ) : (
+                     <textarea 
+                        rows={2}
+                        placeholder="https://image1.jpg, https://image2.jpg"
+                        className="w-full bg-white border border-neutral-300 p-3 text-sm text-aura-black focus:outline-none focus:border-aura-gold focus:ring-1 focus:ring-aura-gold resize-none transition-all"
+                        value={formData.images}
+                        onChange={e => {
+                            setFormData({...formData, images: e.target.value, image: e.target.value.split(',')[0].trim()});
+                        }}
+                        style={{ backgroundColor: '#ffffff' }}
+                    />
+                )}
+
+                {/* Preview */}
+                {formData.images && (
+                    <div className="mt-4 flex gap-2 overflow-x-auto pb-2">
+                        {formData.images.split(',').filter(Boolean).map((img, idx) => (
+                            <div key={idx} className="w-16 h-16 border border-neutral-200 flex-shrink-0 relative group">
+                                <img src={img.trim()} className="w-full h-full object-cover" alt="Preview" />
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const newImages = formData.images.split(',').filter((_, i) => i !== idx).join(', ');
+                                        setFormData({...formData, images: newImages, image: newImages.split(',')[0]?.trim() || ''});
+                                    }} 
+                                    className="absolute top-0 right-0 bg-red-600 text-white p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                >
+                                    <X size={10} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+                )}
               </div>
 
               {/* SEO Section */}
@@ -290,8 +430,8 @@ const AdminProducts: React.FC = () => {
                 <button type="button" onClick={() => setIsModalOpen(false)} className="w-1/3 border border-neutral-200 text-neutral-500 py-4 uppercase text-xs font-bold tracking-[0.2em] hover:bg-neutral-50 transition-colors">
                    Cancel
                 </button>
-                <button type="submit" className="w-2/3 bg-aura-black text-white py-4 uppercase text-xs font-bold tracking-[0.2em] hover:bg-neutral-800 transition-colors shadow-lg border border-aura-black hover:border-aura-gold hover:text-aura-gold">
-                  Save Product
+                <button type="submit" disabled={isProcessing} className="w-2/3 bg-aura-black text-white py-4 uppercase text-xs font-bold tracking-[0.2em] hover:bg-neutral-800 transition-colors shadow-lg border border-aura-black hover:border-aura-gold hover:text-aura-gold disabled:opacity-50">
+                  {isProcessing ? 'Processing...' : 'Save Product'}
                 </button>
               </div>
             </form>
