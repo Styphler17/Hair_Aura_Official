@@ -29,21 +29,19 @@ const App: React.FC = () => {
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [settings, setSettings] = useState<SiteSettings>(SettingsController.getSettingsSync());
+  const [isLoadingSettings, setIsLoadingSettings] = useState(true);
 
+  // Fetch settings on mount
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const productIdFromUrl = params.get('product_id');
-
-    if (productIdFromUrl) {
-      setSelectedId(productIdFromUrl);
-      setCurrentPage('product-details');
-      window.history.replaceState({}, document.title, window.location.pathname);
-    }
-
-    // Refresh settings on page change
     const fetchSettings = async () => {
-      const currentSettings = await SettingsController.getSettings();
-      setSettings(currentSettings);
+      try {
+        const currentSettings = await SettingsController.getSettings();
+        setSettings(currentSettings);
+      } catch (error) {
+        console.error("Error loading settings:", error);
+      } finally {
+        setIsLoadingSettings(false);
+      }
     };
     fetchSettings();
     
@@ -54,7 +52,29 @@ const App: React.FC = () => {
     
     window.addEventListener('settings-updated', handleSettingsUpdate);
     return () => window.removeEventListener('settings-updated', handleSettingsUpdate);
-    
+  }, []); // Run only on mount
+
+  // Handle URL params and page changes
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const productIdFromUrl = params.get('product_id');
+
+    if (productIdFromUrl) {
+      setSelectedId(productIdFromUrl);
+      setCurrentPage('product-details');
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    // Refresh settings on page change (but don't show loading again)
+    const refreshSettings = async () => {
+      try {
+        const currentSettings = await SettingsController.getSettings();
+        setSettings(currentSettings);
+      } catch (error) {
+        console.error("Error refreshing settings:", error);
+      }
+    };
+    refreshSettings();
   }, [currentPage]);
 
   const handleNavigate = (page: string, id?: string) => {
@@ -74,9 +94,14 @@ const App: React.FC = () => {
       return <AdminDashboard currentPage={currentPage} onNavigate={handleNavigate} onLogout={() => setIsAdminAuthenticated(false)} />;
     }
 
-    // Maintenance Mode Check
-    if (settings.maintenanceMode && !isAdminAuthenticated) {
+    // Maintenance Mode Check (only after settings are loaded to avoid flash)
+    if (!isLoadingSettings && settings.maintenanceMode && !isAdminAuthenticated) {
         return <Maintenance />;
+    }
+    
+    // Show loading state while fetching settings
+    if (isLoadingSettings) {
+        return <div className="min-h-screen flex items-center justify-center bg-white"><div className="text-neutral-400">Loading...</div></div>;
     }
 
     // Public Routes

@@ -61,7 +61,9 @@ export const SettingsController = {
         aboutContent: parsed.aboutContent || DEFAULT_SETTINGS.aboutContent,
         contactTitle: parsed.contactTitle || DEFAULT_SETTINGS.contactTitle,
         contactContent: parsed.contactContent || DEFAULT_SETTINGS.contactContent,
-        maintenanceMode: parsed.maintenanceMode || false,
+        // Always default maintenanceMode to false from LocalStorage to avoid flash
+        // The API will provide the correct value immediately
+        maintenanceMode: false,
       };
     }
     return DEFAULT_SETTINGS;
