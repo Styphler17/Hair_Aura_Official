@@ -1,0 +1,61 @@
+import React from 'react';
+
+const About: React.FC = () => {
+  return (
+    <div className="bg-white">
+      {/* Header */}
+      <div className="bg-neutral-50 py-24 text-center px-4">
+        <h1 className="text-4xl md:text-6xl font-serif font-bold mb-4 text-aura-black">Our Story</h1>
+        <p className="text-neutral-400 uppercase tracking-widest text-xs">Redefining Luxury Hair</p>
+      </div>
+
+      {/* Main Content */}
+      <div className="max-w-4xl mx-auto px-4 py-20">
+        <div className="prose prose-lg mx-auto text-neutral-600 font-light">
+          <p className="text-xl leading-relaxed mb-8 first-letter:text-5xl first-letter:font-serif first-letter:float-left first-letter:mr-3 first-letter:mt-[-10px] first-letter:text-aura-black">
+            Hair Aura was born from a desire to bring uncompromising quality to the hair extension market. 
+            We noticed a gap between high-end promises and actual product longevity. Our mission became clear: 
+            source only the finest raw virgin hair, ensuring that every bundle, wig, and closure meets our 
+            rigorous standards of excellence.
+          </p>
+          <p className="mb-8">
+            We believe that hair is an accessory that should empower you. Whether you are looking for a 
+            professional sleek look or vacation curls, our collection is curated to enhance your natural beauty 
+            without the hassle of tangling or shedding.
+          </p>
+        </div>
+      </div>
+
+      {/* Features Grid */}
+      <div className="bg-aura-black text-white py-20 px-4">
+        <div className="max-w-7xl mx-auto">
+          <h2 className="text-3xl md:text-4xl font-serif font-bold mb-16 text-center">The Aura Standard</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
+            <div className="text-center p-6 border border-neutral-800 hover:border-neutral-600 transition-colors">
+              <div className="text-4xl mb-4 text-neutral-500">01</div>
+              <h3 className="font-serif text-xl mb-4 text-white">100% Virgin Hair</h3>
+              <p className="text-sm text-neutral-400 leading-relaxed">Unprocessed, cuticle aligned hair that remains soft and manageable for years with proper care.</p>
+            </div>
+            <div className="text-center p-6 border border-neutral-800 hover:border-neutral-600 transition-colors">
+              <div className="text-4xl mb-4 text-neutral-500">02</div>
+              <h3 className="font-serif text-xl mb-4 text-white">HD Lace Technology</h3>
+              <p className="text-sm text-neutral-400 leading-relaxed">Ultra-thin, undetectable lace that melts seamlessly into any skin tone for a flawless install.</p>
+            </div>
+            <div className="text-center p-6 border border-neutral-800 hover:border-neutral-600 transition-colors">
+              <div className="text-4xl mb-4 text-neutral-500">03</div>
+              <h3 className="font-serif text-xl mb-4 text-white">Ethical Sourcing</h3>
+              <p className="text-sm text-neutral-400 leading-relaxed">We maintain direct relationships with our donors and suppliers to ensure ethical practices at every step.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Visual Break */}
+      <div className="h-96 w-full relative">
+         <img src="https://picsum.photos/id/1005/1920/600" alt="Texture shot" className="w-full h-full object-cover grayscale" />
+      </div>
+    </div>
+  );
+};
+
+export default About;
