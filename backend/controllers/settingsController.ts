@@ -94,7 +94,7 @@ export const SettingsController = {
         aboutContent: data.about_content || DEFAULT_SETTINGS.aboutContent,
         contactTitle: data.contact_title || DEFAULT_SETTINGS.contactTitle,
         contactContent: data.contact_content || DEFAULT_SETTINGS.contactContent,
-        maintenanceMode: data.maintenance_mode || false,
+        maintenanceMode: !!(data.maintenance_mode === 1 || data.maintenance_mode === '1' || data.maintenance_mode === true),
         socialLinks: data.socialLinks || DEFAULT_SETTINGS.socialLinks,
       };
     } catch (error) {

@@ -35,3 +35,14 @@ body {
     background-color: #e5e5e5;
     border-radius: 20px;
 }
+
+/* Hide Shopify checkout tokens and elements (from browser extensions or third-party scripts) */
+[name='shopify-checkout-api-token'],
+[name='shopify-checkout-authorization-token'],
+[data-serialized-id='shopify-checkout-api-token'],
+[name='serialized-shopify-checkout-api-token'],
+meta[name='serialized-public-path'][content*=shopify],
+meta[name='serialized-graphql'][content*='shopify'] {
+    display: none !important;
+    visibility: hidden !important;
+}

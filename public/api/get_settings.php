@@ -10,6 +10,9 @@ $settings = null;
 if ($result->num_rows > 0) {
     $settings = $result->fetch_assoc();
     
+    // Convert maintenance_mode to proper boolean (handle both string and int)
+    $settings['maintenance_mode'] = ($settings['maintenance_mode'] == 1 || $settings['maintenance_mode'] === '1' || $settings['maintenance_mode'] === true);
+    
     // Fetch social links
     $socialSql = "SELECT platform, url FROM social_links WHERE settings_id = 1";
     $socialResult = $conn->query($socialSql);
