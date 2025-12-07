@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { ArrowUpRight, Eye, Heart, ShoppingBag } from 'lucide-react';
 import { Product } from '../backend/models';
@@ -43,7 +44,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
 
   const handleBuyClick = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const message = encodeURIComponent(`Hello Hair Aura, I am interested in ordering: ${product.name} (Price: ${currency}${product.price})`);
+    const productLink = `${window.location.origin}?product_id=${product.id}`;
+    const message = encodeURIComponent(`Hello Hair Aura, I am interested in ordering:\n\n*${product.name}*\nPrice: ${currency}${product.price.toLocaleString()}\nLink: ${productLink}`);
     const url = `https://wa.me/${phoneNumber}?text=${message}`;
     window.open(url, '_blank');
   };

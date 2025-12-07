@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { SettingsController } from '../backend/controllers/settingsController';
 import { SiteSettings, SocialLink } from '../backend/models';
-import { Save, Upload, Plus, Trash2, Layout, Palette, RefreshCcw, Check } from 'lucide-react';
+import { Save, Upload, Plus, Trash2, Layout, Palette, RefreshCcw, Check, Share2 } from 'lucide-react';
 
 const AdminSettings: React.FC = () => {
   const [settings, setSettings] = useState<SiteSettings | null>(null);
@@ -27,7 +27,7 @@ const AdminSettings: React.FC = () => {
     }
   };
 
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, field: 'logo' | 'favicon' | 'heroImage') => {
+  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>, field: 'logo' | 'favicon' | 'heroImage' | 'defaultSocialImage') => {
     const file = e.target.files?.[0];
     if (file && settings) {
       const reader = new FileReader();
@@ -62,7 +62,6 @@ const AdminSettings: React.FC = () => {
     }
   };
 
-  // Preset Configurations
   const BRAND_DEFAULT = {
     name: 'Brand Standard',
     text: '#0a0a0a',
@@ -203,16 +202,32 @@ const AdminSettings: React.FC = () => {
                 </label>
               </div>
             </div>
+
+             {/* Social Share Image Upload */}
+             <div className="md:col-span-2">
+              <label className="block text-xs font-bold text-aura-black mb-2 flex items-center gap-2"><Share2 size={12}/> Default Social Share Image</label>
+              <p className="text-[10px] text-neutral-400 mb-2">This image will be displayed when your website link is shared on WhatsApp, Facebook, etc.</p>
+              <div className="flex items-center gap-4">
+                <div className="w-32 h-20 border border-neutral-200 bg-neutral-50 flex items-center justify-center overflow-hidden p-1">
+                  {settings.defaultSocialImage ? (
+                    <img src={settings.defaultSocialImage} alt="Social Share" className="w-full h-full object-cover" />
+                  ) : (
+                    <span className="text-xs text-neutral-400">Default</span>
+                  )}
+                </div>
+                 <label className="cursor-pointer bg-white border border-neutral-300 px-4 py-2 text-xs font-bold uppercase tracking-widest hover:bg-neutral-50 flex items-center gap-2">
+                  <Upload size={14} /> Upload Image
+                  <input type="file" accept="image/*" className="hidden" onChange={(e) => handleFileUpload(e, 'defaultSocialImage')} />
+                </label>
+              </div>
+            </div>
             
             {/* Dynamic Colors Section */}
             <div className="md:col-span-2 pt-4 border-t border-neutral-100">
-               
-               {/* Color Presets */}
                <div className="mb-8">
                  <h4 className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-4">Color Presets</h4>
                  
                  <div className="space-y-4">
-                    {/* Default Preset */}
                     <div className="flex items-start">
                         <div className="w-32 pt-2">
                             <span className="text-xs font-bold text-aura-black block">Brand Default</span>
@@ -232,7 +247,6 @@ const AdminSettings: React.FC = () => {
                         </button>
                     </div>
 
-                    {/* Alternatives */}
                     <div>
                         <div className="w-full pt-4 mb-2">
                             <span className="text-xs font-bold text-aura-black block">Alternatives</span>
@@ -259,14 +273,10 @@ const AdminSettings: React.FC = () => {
                  </div>
                </div>
 
-               {/* Manual Customization */}
                <h4 className="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-4 pt-4 border-t border-neutral-100">Custom Colors</h4>
                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  
-                  {/* Text Color */}
                   <div>
                     <label className="block text-xs font-bold text-aura-black mb-1">Text / Primary</label>
-                    <p className="text-[10px] text-neutral-400 mb-2">Headings, Buttons, Navbar.</p>
                     <div className="flex items-center gap-3">
                       <input
                         type="color"
@@ -284,10 +294,8 @@ const AdminSettings: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Background Color */}
                   <div>
                     <label className="block text-xs font-bold text-aura-black mb-1">Page Background</label>
-                    <p className="text-[10px] text-neutral-400 mb-2">Main site background.</p>
                     <div className="flex items-center gap-3">
                       <input
                         type="color"
@@ -305,10 +313,8 @@ const AdminSettings: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Accent Color */}
                   <div>
                     <label className="block text-xs font-bold text-aura-black mb-1">Accent / Highlight</label>
-                    <p className="text-[10px] text-neutral-400 mb-2">Icons, badges, prices.</p>
                     <div className="flex items-center gap-3">
                       <input
                         type="color"
@@ -325,7 +331,6 @@ const AdminSettings: React.FC = () => {
                       />
                     </div>
                   </div>
-
                </div>
             </div>
 
@@ -411,9 +416,6 @@ const AdminSettings: React.FC = () => {
                 </button>
               </div>
             ))}
-            {settings.socialLinks.length === 0 && (
-              <p className="text-sm text-neutral-400 italic">No social media links added.</p>
-            )}
           </div>
         </section>
 

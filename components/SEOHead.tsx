@@ -1,3 +1,4 @@
+
 import React, { useEffect } from 'react';
 import { SettingsController } from '../backend/controllers/settingsController';
 
@@ -5,34 +6,56 @@ interface SEOHeadProps {
   title: string;
   description: string;
   keywords?: string;
+  image?: string; // Featured image for sharing
 }
 
-const SEOHead: React.FC<SEOHeadProps> = ({ title, description, keywords }) => {
+const SEOHead: React.FC<SEOHeadProps> = ({ title, description, keywords, image }) => {
   useEffect(() => {
-    // Update Title if provided
-    if (title) document.title = `${title} | Hair Aura Ghana`;
+    const settings = SettingsController.getSettings();
+    const siteTitle = `${title} | Hair Aura Ghana`;
+    
+    // Update Document Title
+    document.title = siteTitle;
 
     // Helper to update meta tags
-    const updateMeta = (name: string, content: string) => {
-      let element = document.querySelector(`meta[name="${name}"]`);
+    const updateMeta = (selector: string, content: string) => {
+      let element = document.querySelector(selector);
       if (!element) {
         element = document.createElement('meta');
-        element.setAttribute('name', name);
+        
+        // Handle name vs property attributes
+        if (selector.startsWith('meta[name=')) {
+           element.setAttribute('name', selector.replace('meta[name="', '').replace('"]', ''));
+        } else if (selector.startsWith('meta[property=')) {
+           element.setAttribute('property', selector.replace('meta[property="', '').replace('"]', ''));
+        }
+        
         document.head.appendChild(element);
       }
       element.setAttribute('content', content);
     };
 
-    if (description) updateMeta('description', description);
+    // Standard SEO
+    if (description) updateMeta('meta[name="description"]', description);
     
-    // Default keywords + page specific keywords
     const baseKeywords = "hair aura, luxury hair ghana, wigs accra, human hair, virgin bundles";
     if (keywords !== undefined) {
-       updateMeta('keywords', keywords ? `${baseKeywords}, ${keywords}` : baseKeywords);
+       updateMeta('meta[name="keywords"]', keywords ? `${baseKeywords}, ${keywords}` : baseKeywords);
     }
 
-    // Update Favicon dynamically
-    const settings = SettingsController.getSettings();
+    // Open Graph / Social Sharing
+    updateMeta('meta[property="og:title"]', siteTitle);
+    updateMeta('meta[property="og:description"]', description || settings.heroSubheadline);
+    updateMeta('meta[property="og:type"]', 'website');
+    updateMeta('meta[property="og:url"]', window.location.href);
+    
+    // Featured Image Logic: Product Image > Blog Image > Default Setting > Hero Image
+    const shareImage = image || settings.defaultSocialImage || settings.heroImage;
+    if (shareImage) {
+        updateMeta('meta[property="og:image"]', shareImage);
+    }
+
+    // Dynamic Favicon
     if (settings.favicon) {
       let link: HTMLLinkElement | null = document.querySelector("link[rel~='icon']");
       if (!link) {
@@ -43,9 +66,9 @@ const SEOHead: React.FC<SEOHeadProps> = ({ title, description, keywords }) => {
       link.href = settings.favicon;
     }
 
-  }, [title, description, keywords]);
+  }, [title, description, keywords, image]);
 
-  return null; // This component renders nothing visually
+  return null;
 };
 
 export default SEOHead;

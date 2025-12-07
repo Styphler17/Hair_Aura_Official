@@ -11,6 +11,17 @@ export interface Product {
   seoKeywords?: string;
 }
 
+export interface BlogPost {
+  id: string;
+  title: string;
+  excerpt: string; // Short description for cards
+  content: string; // Full content
+  image: string; // Thumbnail
+  author: string;
+  date: string;
+  seoDescription: string; // Meta description
+}
+
 export interface SocialLink {
   platform: 'TikTok' | 'Instagram' | 'Facebook' | 'Twitter' | 'YouTube' | 'Snapchat';
   url: string;
@@ -22,13 +33,16 @@ export interface SiteSettings {
   socialLinks: SocialLink[];
   
   // Branding Colors
-  colorText: string;       // Replaces aura-black (Primary/Text)
-  colorBackground: string; // Page Background
-  colorAccent: string;     // Replaces aura-gold (Accent)
+  colorText: string;
+  colorBackground: string;
+  colorAccent: string;
   
   currencySymbol: string;
-  logo?: string; // Base64 or URL
-  favicon?: string; // Base64 or URL
+  logo?: string; 
+  favicon?: string;
+  
+  // SEO & Social Sharing
+  defaultSocialImage?: string; // Image used when sharing homepage
   
   // Homepage Hero Configuration
   heroImage?: string;

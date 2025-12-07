@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import ProductCard from './ProductCard';
 import { ProductService } from '../services/productService';
@@ -19,19 +20,14 @@ const Shop: React.FC<ShopProps> = ({ onNavigate }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Quick View State
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
-  
-  // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 6;
 
   const categories = ['all', 'wigs', 'bundles', 'closures'];
 
-  // Fetch data
   useEffect(() => {
     setIsLoading(true);
-    // Simulate network delay for effect
     const timer = setTimeout(() => {
       setProducts(ProductService.getAll());
       setIsLoading(false);
@@ -39,19 +35,16 @@ const Shop: React.FC<ShopProps> = ({ onNavigate }) => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Reset to page 1 when filters change
   useEffect(() => {
     setCurrentPage(1);
   }, [activeCategory, activeTag, searchQuery, sortOption]);
 
-  // Extract unique tags
   const allTags = useMemo(() => {
     const tags = new Set<string>();
     products.forEach(p => p.tags?.forEach(t => tags.add(t)));
     return Array.from(tags);
   }, [products]);
 
-  // Search Suggestions
   const searchSuggestions = useMemo(() => {
     if (!searchQuery || searchQuery.length < 2) return [];
     const query = searchQuery.toLowerCase();
@@ -63,17 +56,14 @@ const Shop: React.FC<ShopProps> = ({ onNavigate }) => {
   const getFilteredProducts = () => {
     let filtered = products;
 
-    // Category Filter
     if (activeCategory !== 'all') {
       filtered = filtered.filter(p => p.category === activeCategory);
     }
 
-    // Tag Filter
     if (activeTag) {
       filtered = filtered.filter(p => p.tags?.includes(activeTag));
     }
 
-    // Search Filter
     if (searchQuery.trim()) {
       const query = searchQuery.toLowerCase();
       filtered = filtered.filter(p => 
@@ -102,8 +92,6 @@ const Shop: React.FC<ShopProps> = ({ onNavigate }) => {
   };
 
   const allFilteredProducts = getSortedProducts(getFilteredProducts());
-  
-  // Pagination Logic
   const totalPages = Math.ceil(allFilteredProducts.length / itemsPerPage);
   const paginatedProducts = allFilteredProducts.slice(
     (currentPage - 1) * itemsPerPage,
@@ -112,7 +100,6 @@ const Shop: React.FC<ShopProps> = ({ onNavigate }) => {
 
   const shopKeywords = products.map(p => p.seoKeywords).filter(Boolean).join(', ');
 
-  // Generate Schema Markup
   const schemaData = {
     "@context": "https://schema.org",
     "@type": "ItemList",
@@ -152,6 +139,8 @@ const Shop: React.FC<ShopProps> = ({ onNavigate }) => {
     }
   };
 
+  const customOrderMessage = "Welcome to Hair Aura. How may we help you?";
+
   return (
     <div className="py-20 bg-white min-h-screen">
       <SEOHead 
@@ -172,10 +161,7 @@ const Shop: React.FC<ShopProps> = ({ onNavigate }) => {
           </div>
         </div>
 
-        {/* Toolbar */}
         <div className="flex flex-col lg:flex-row gap-6 items-start lg:items-center justify-between mb-8 pb-6 border-b border-neutral-100">
-          
-          {/* Search Bar with Autocomplete */}
           <div className="relative w-full lg:w-96 z-20">
             <div className="relative">
                 <input 
@@ -192,7 +178,6 @@ const Shop: React.FC<ShopProps> = ({ onNavigate }) => {
                 </button>
                 )}
             </div>
-            {/* Suggestions Dropdown */}
             {searchSuggestions.length > 0 && (
                 <div className="absolute top-full left-0 right-0 bg-white border border-neutral-100 shadow-lg mt-1 rounded-sm">
                     {searchSuggestions.map(s => (
@@ -268,8 +253,6 @@ const Shop: React.FC<ShopProps> = ({ onNavigate }) => {
         </div>
 
         <div className="flex flex-col md:flex-row gap-8">
-            
-            {/* Tag Filter Sidebar (Desktop) / Scrollbar (Mobile) */}
             <div className="w-full md:w-48 flex-shrink-0">
                 <div className="sticky top-24">
                     <h3 className="text-xs font-bold uppercase tracking-widest text-aura-black mb-4 flex items-center gap-2">
@@ -295,11 +278,9 @@ const Shop: React.FC<ShopProps> = ({ onNavigate }) => {
                 </div>
             </div>
 
-            {/* Products Grid */}
             <div className="flex-1">
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-x-8 gap-y-12 sm:gap-y-16 min-h-[500px]">
                 {isLoading ? (
-                    // Skeleton Loader
                     Array.from({ length: 6 }).map((_, index) => (
                     <div key={index} className="flex flex-col border border-neutral-100 bg-white animate-pulse">
                         <div className="aspect-[3/4] bg-neutral-100 w-full" />
@@ -335,7 +316,6 @@ const Shop: React.FC<ShopProps> = ({ onNavigate }) => {
                 )}
                 </div>
 
-                {/* Pagination Controls */}
                 {!isLoading && totalPages > 1 && (
                 <div className="mt-16 flex justify-center items-center gap-4">
                     <button 
@@ -374,17 +354,20 @@ const Shop: React.FC<ShopProps> = ({ onNavigate }) => {
             </div>
         </div>
 
-        {/* Custom Order CTA */}
         <div className="mt-24 pt-12 border-t border-neutral-100 text-center px-4">
            <h3 className="font-serif text-2xl mb-4">Need something specific?</h3>
            <p className="text-neutral-500 text-sm mb-8 max-w-md mx-auto">We offer custom lengths, textures, and colors upon request. Chat with our specialists to build your dream unit.</p>
-           <a href={`https://wa.me/${SettingsController.getSettings().phoneNumber}`} target="_blank" rel="noopener noreferrer" className="inline-block bg-aura-black text-white px-10 py-4 uppercase text-xs font-bold tracking-widest hover:bg-neutral-800 transition-colors w-full sm:w-auto">
+           <a 
+             href={`https://wa.me/${SettingsController.getSettings().phoneNumber}?text=${encodeURIComponent(customOrderMessage)}`} 
+             target="_blank" 
+             rel="noopener noreferrer" 
+             className="inline-block bg-aura-black text-white px-10 py-4 uppercase text-xs font-bold tracking-widest hover:bg-neutral-800 transition-colors w-full sm:w-auto"
+           >
              Request Custom Order
            </a>
         </div>
       </div>
 
-      {/* Quick View Modal */}
       {quickViewProduct && (
           <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm" onClick={() => setQuickViewProduct(null)}>
               <div 
@@ -397,7 +380,6 @@ const Shop: React.FC<ShopProps> = ({ onNavigate }) => {
                       </button>
                   </div>
                   <div className="px-6 pb-8">
-                      {/* Reuse parts of ProductDetails or simplified view */}
                       <div className="flex flex-col md:flex-row gap-8">
                           <div className="w-full md:w-1/2 aspect-[3/4] bg-neutral-100">
                               <img src={quickViewProduct.image} alt={quickViewProduct.name} className="w-full h-full object-cover" />

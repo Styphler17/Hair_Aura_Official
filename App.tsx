@@ -13,6 +13,8 @@ import AdminLogin from './components/AdminLogin';
 import BackToTop from './components/BackToTop';
 import Terms from './components/Terms';
 import Privacy from './components/Privacy';
+import Blog from './components/Blog';
+import BlogPostPage from './components/BlogPost';
 import { InstagramIcon, TikTokIcon, WhatsAppIcon, SnapchatIcon } from './components/Icons';
 import { SettingsController } from './backend/controllers/settingsController';
 import { SiteSettings } from './backend/models';
@@ -22,12 +24,20 @@ import { Facebook, Twitter, Youtube } from 'lucide-react';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<string>('home');
-  const [selectedProductId, setSelectedProductId] = useState<string | undefined>(undefined);
+  const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
   const [settings, setSettings] = useState<SiteSettings>(SettingsController.getSettings());
 
-  // Refresh settings when navigating to regular pages to ensure updates from admin are reflected
   useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const productIdFromUrl = params.get('product_id');
+
+    if (productIdFromUrl) {
+      setSelectedId(productIdFromUrl);
+      setCurrentPage('product-details');
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
     if (!currentPage.startsWith('admin')) {
       setSettings(SettingsController.getSettings());
     }
@@ -36,7 +46,7 @@ const App: React.FC = () => {
   const handleNavigate = (page: string, id?: string) => {
     setCurrentPage(page);
     if (id) {
-      setSelectedProductId(id);
+      setSelectedId(id);
     }
     window.scrollTo(0, 0);
   };
@@ -54,10 +64,17 @@ const App: React.FC = () => {
     switch(currentPage) {
       case 'shop': return <Shop onNavigate={handleNavigate} />;
       case 'product-details': 
-        return selectedProductId ? (
-          <ProductDetails productId={selectedProductId} onNavigate={handleNavigate} />
+        return selectedId ? (
+          <ProductDetails productId={selectedId} onNavigate={handleNavigate} />
         ) : (
           <Shop onNavigate={handleNavigate} />
+        );
+      case 'blog': return <Blog onNavigate={handleNavigate} />;
+      case 'blog-post':
+        return selectedId ? (
+          <BlogPostPage id={selectedId} onNavigate={handleNavigate} />
+        ) : (
+           <Blog onNavigate={handleNavigate} />
         );
       case 'wishlist': return <Wishlist onNavigate={handleNavigate} />;
       case 'cart': return <Cart onNavigate={handleNavigate} />;
@@ -86,12 +103,10 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-white text-aura-black selection:bg-aura-black selection:text-white flex flex-col transition-colors duration-500">
       <GlobalStyles />
       
-      {/* Dynamic Favicon Injector */}
       {settings.favicon && (
         <SEOHead title="" description="" />
       )}
 
-      {/* Header - Only on public pages */}
       {!currentPage.startsWith('admin') && (
         <Header onNavigate={handleNavigate} currentPage={currentPage} />
       )}
@@ -100,10 +115,8 @@ const App: React.FC = () => {
         {renderPage()}
       </main>
 
-      {/* Back to Top Button */}
       {!currentPage.startsWith('admin') && <BackToTop />}
 
-      {/* Footer - Only on public pages */}
       {!currentPage.startsWith('admin') && (
         <footer className="bg-white border-t border-neutral-100 pt-16 pb-8">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-8">

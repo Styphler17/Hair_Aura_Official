@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Product } from '../backend/models';
 import { ProductService } from '../services/productService';
@@ -35,22 +36,19 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId, onNavigate }
     if (found) {
       setProduct(found);
       
-      // Setup Related Products
       const related = allProducts
         .filter(p => p.category === found.category && p.id !== found.id)
         .slice(0, 3);
       setRelatedProducts(related);
 
-      // Check Wishlist/Cart
       setInWishlist(WishlistService.isInWishlist(found.id));
       setInCart(CartService.isInCart(found.id));
       
-      setActiveImageIndex(0); // Reset carousel
+      setActiveImageIndex(0); 
       window.scrollTo(0, 0);
     }
   }, [productId]);
 
-  // Listeners
   useEffect(() => {
     const handleUpdate = () => {
       if (product) {
@@ -68,7 +66,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId, onNavigate }
 
   if (!product) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
 
-  // Handle Carousel
   const images = product.images && product.images.length > 0 ? product.images : [product.image];
 
   const nextImage = () => setActiveImageIndex((prev) => (prev + 1) % images.length);
@@ -83,7 +80,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId, onNavigate }
   };
 
   const handleBuyNow = () => {
-    const message = encodeURIComponent(`Hello Hair Aura, I am interested in: ${product.name} (Price: ${currency}${product.price})`);
+    const productLink = `${window.location.origin}?product_id=${product.id}`;
+    const message = encodeURIComponent(`Hello Hair Aura, I am interested in:\n\n*${product.name}*\nPrice: ${currency}${product.price.toLocaleString()}\nLink: ${productLink}`);
     const url = `https://wa.me/${phoneNumber}?text=${message}`;
     window.open(url, '_blank');
   };
@@ -94,7 +92,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId, onNavigate }
       }
   };
 
-  // Structured Data for SEO
   const structuredData = {
     "@context": "https://schema.org/",
     "@type": "Product",
@@ -108,7 +105,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId, onNavigate }
     },
     "offers": {
       "@type": "Offer",
-      "url": `${siteUrl}/product/${product.id}`, // Logical URL
+      "url": `${siteUrl}/?product_id=${product.id}`,
       "priceCurrency": "GHS",
       "price": product.price,
       "priceValidUntil": new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0],
@@ -123,9 +120,9 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId, onNavigate }
         title={product.name} 
         description={product.description} 
         keywords={product.seoKeywords}
+        image={images[0]} // Pass main image for social sharing
       />
       
-      {/* JSON-LD Schema */}
       <script 
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }}
@@ -133,7 +130,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId, onNavigate }
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
-        {/* Back Button */}
         <button 
           onClick={() => onNavigate('shop')}
           className="flex items-center gap-2 text-neutral-400 hover:text-aura-black uppercase text-xs font-bold tracking-widest mb-8 transition-colors"
@@ -141,10 +137,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId, onNavigate }
           <ArrowLeft size={16} /> Back to Shop
         </button>
 
-        {/* Main Content */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20 mb-20">
           
-          {/* Left: Image Carousel */}
           <div className="space-y-4">
             <div className="relative aspect-[3/4] bg-neutral-100 overflow-hidden group">
               <img 
@@ -154,7 +148,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId, onNavigate }
                 loading="lazy"
               />
               
-              {/* Carousel Controls (Only if multiple images) */}
               {images.length > 1 && (
                 <>
                   <button 
@@ -172,7 +165,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId, onNavigate }
                 </>
               )}
               
-              {/* Wishlist Button (Overlay) */}
               <button 
                 onClick={toggleWishlist}
                 className="absolute top-4 right-4 p-3 bg-white/90 rounded-full hover:bg-white shadow-sm transition-colors"
@@ -181,7 +173,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId, onNavigate }
               </button>
             </div>
 
-            {/* Thumbnails */}
             {images.length > 1 && (
               <div className="flex gap-4 overflow-x-auto pb-2 hide-scrollbar">
                 {images.map((img, idx) => (
@@ -197,7 +188,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId, onNavigate }
             )}
           </div>
 
-          {/* Right: Product Info */}
           <div className="flex flex-col">
             <div className="mb-2">
                <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">{product.category}</span>
@@ -245,7 +235,6 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId, onNavigate }
           </div>
         </div>
 
-        {/* Related Products Section */}
         {relatedProducts.length > 0 && (
           <div className="border-t border-neutral-100 pt-20">
             <div className="text-center mb-12">

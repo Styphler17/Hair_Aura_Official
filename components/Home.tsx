@@ -6,7 +6,8 @@ import { SettingsController } from '../backend/controllers/settingsController';
 import ProductCard from './ProductCard';
 import Reveal from './Reveal';
 import { ProductController } from '../backend/controllers/productController';
-import { Product, SiteSettings } from '../backend/models';
+import { Product, SiteSettings, BlogPost } from '../backend/models';
+import { BlogController } from '../backend/controllers/blogController';
 import SEOHead from './SEOHead';
 
 interface HomeProps {
@@ -16,12 +17,15 @@ interface HomeProps {
 
 const Home: React.FC<HomeProps> = ({ onShopClick, onNavigate }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
+  const blogScrollRef = useRef<HTMLDivElement>(null);
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
+  const [latestBlogs, setLatestBlogs] = useState<BlogPost[]>([]);
   const [settings, setSettings] = useState<SiteSettings>(SettingsController.getSettings());
 
   useEffect(() => {
     const allProducts = ProductController.getAll();
     setFeaturedProducts(allProducts.slice(0, 3));
+    setLatestBlogs(BlogController.getAll().slice(0, 5));
     setSettings(SettingsController.getSettings());
   }, []);
   
@@ -34,10 +38,11 @@ const Home: React.FC<HomeProps> = ({ onShopClick, onNavigate }) => {
     { id: 6, image: 'https://picsum.photos/seed/hair6/600/900', views: '900K', desc: 'HD Lace melt 💦' },
   ];
 
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const { current } = scrollRef;
-      const scrollAmount = direction === 'left' ? -300 : 300;
+  const scroll = (ref: React.RefObject<HTMLDivElement>, direction: 'left' | 'right') => {
+    if (ref.current) {
+      const { current } = ref;
+      // Scroll amount approximates card width + gap for a natural feel
+      const scrollAmount = direction === 'left' ? -310 : 310;
       current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
     }
   };
@@ -74,7 +79,6 @@ const Home: React.FC<HomeProps> = ({ onShopClick, onNavigate }) => {
           </Reveal>
           
           <Reveal delay={200}>
-            {/* Split headline by <br> if user entered it, or just render text */}
             <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-9xl font-serif font-bold mb-6 md:mb-8 leading-[0.95]" dangerouslySetInnerHTML={{ __html: settings.heroHeadline || 'Unleash Your Inner Aura' }}>
             </h1>
           </Reveal>
@@ -139,7 +143,8 @@ const Home: React.FC<HomeProps> = ({ onShopClick, onNavigate }) => {
         </div>
       </div>
 
-      <div className="bg-white py-20 md:py-24 overflow-hidden">
+      {/* Social / TikTok Section */}
+      <div className="bg-white py-20 md:py-24 overflow-hidden border-b border-neutral-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <Reveal>
               <div className="flex flex-col md:flex-row justify-between items-end mb-8 md:mb-12">
@@ -151,10 +156,10 @@ const Home: React.FC<HomeProps> = ({ onShopClick, onNavigate }) => {
                       </a>
                   </div>
                   <div className="flex gap-2">
-                      <button onClick={() => scroll('left')} className="p-3 border border-neutral-200 hover:bg-neutral-50 transition-colors text-aura-black">
+                      <button onClick={() => scroll(scrollRef, 'left')} className="p-3 border border-neutral-200 hover:bg-neutral-50 transition-colors text-aura-black">
                           <ChevronLeft size={20} />
                       </button>
-                      <button onClick={() => scroll('right')} className="p-3 border border-neutral-200 hover:bg-neutral-50 transition-colors text-aura-black">
+                      <button onClick={() => scroll(scrollRef, 'right')} className="p-3 border border-neutral-200 hover:bg-neutral-50 transition-colors text-aura-black">
                           <ChevronRight size={20} />
                       </button>
                   </div>
@@ -201,6 +206,55 @@ const Home: React.FC<HomeProps> = ({ onShopClick, onNavigate }) => {
             </Reveal>
         </div>
       </div>
+
+      {/* Blog Carousel */}
+      {latestBlogs.length > 0 && (
+         <div className="bg-neutral-50 py-20 md:py-24 overflow-hidden">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+               <Reveal>
+                  <div className="flex flex-col md:flex-row justify-between items-end mb-8 md:mb-12">
+                     <div className="mb-6 md:mb-0">
+                        <h2 className="text-2xl md:text-3xl font-serif font-bold mb-3 text-aura-black">The Journal</h2>
+                        <button onClick={() => onNavigate && onNavigate('blog')} className="inline-flex items-center gap-2 text-neutral-400 text-xs font-bold hover:text-aura-black transition-colors uppercase tracking-[0.2em]">
+                           Read All Stories <ArrowRight size={14} />
+                        </button>
+                     </div>
+                     <div className="flex gap-2">
+                        <button onClick={() => scroll(blogScrollRef, 'left')} className="p-3 border border-neutral-200 hover:bg-white transition-colors text-aura-black">
+                           <ChevronLeft size={20} />
+                        </button>
+                        <button onClick={() => scroll(blogScrollRef, 'right')} className="p-3 border border-neutral-200 hover:bg-white transition-colors text-aura-black">
+                           <ChevronRight size={20} />
+                        </button>
+                     </div>
+                  </div>
+               </Reveal>
+
+               <Reveal delay={200}>
+                  <div 
+                     ref={blogScrollRef}
+                     className="flex gap-6 overflow-x-auto pb-4 hide-scrollbar snap-x snap-mandatory scroll-smooth"
+                     style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+                  >
+                     {latestBlogs.map((blog) => (
+                        <div 
+                           key={blog.id} 
+                           className="flex-none w-[300px] md:w-[350px] snap-center cursor-pointer group"
+                           onClick={() => onNavigate && onNavigate('blog-post', blog.id)}
+                        >
+                           <div className="aspect-[4/3] bg-white overflow-hidden mb-4">
+                              <img src={blog.image} alt={blog.title} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
+                           </div>
+                           <p className="text-[10px] font-bold uppercase tracking-widest text-aura-gold mb-2">{new Date(blog.date).toLocaleDateString()}</p>
+                           <h3 className="font-serif text-xl font-bold text-aura-black mb-2 leading-tight group-hover:underline">{blog.title}</h3>
+                           <p className="text-sm text-neutral-500 line-clamp-2">{blog.excerpt}</p>
+                        </div>
+                     ))}
+                  </div>
+               </Reveal>
+            </div>
+         </div>
+      )}
     </div>
   );
 };

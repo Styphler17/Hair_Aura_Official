@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Menu, X, Heart, ShoppingBag } from 'lucide-react';
 import { SettingsController } from '../backend/controllers/settingsController';
@@ -46,7 +47,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
 
   const linkClass = (page: string) => `
     cursor-pointer uppercase text-xs tracking-widest font-bold transition-colors
-    ${currentPage === page ? 'text-aura-black border-b-2 border-aura-black pb-1' : 'text-neutral-500 hover:text-aura-black'}
+    ${currentPage === page || (page === 'blog' && currentPage === 'blog-post') ? 'text-aura-black border-b-2 border-aura-black pb-1' : 'text-neutral-500 hover:text-aura-black'}
   `;
 
   return (
@@ -68,6 +69,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
           <div className="hidden md:flex space-x-10 items-center">
             <button onClick={() => handleNav('shop')} className={linkClass('shop')}>Shop Collection</button>
             <button onClick={() => handleNav('about')} className={linkClass('about')}>Our Story</button>
+            <button onClick={() => handleNav('blog')} className={linkClass('blog')}>The Journal</button>
             <button onClick={() => handleNav('contact')} className={linkClass('contact')}>Contact</button>
             
             {/* Wishlist Icon */}
@@ -119,6 +121,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
           <div className="px-4 pt-2 pb-6 space-y-4 flex flex-col items-center">
             <button onClick={() => handleNav('shop')} className="block px-3 py-2 text-base font-medium text-aura-black uppercase tracking-widest">Shop Collection</button>
             <button onClick={() => handleNav('about')} className="block px-3 py-2 text-base font-medium text-aura-black uppercase tracking-widest">Our Story</button>
+            <button onClick={() => handleNav('blog')} className="block px-3 py-2 text-base font-medium text-aura-black uppercase tracking-widest">The Journal</button>
             <button onClick={() => handleNav('contact')} className="block px-3 py-2 text-base font-medium text-aura-black uppercase tracking-widest">Contact</button>
             <button onClick={() => handleNav('wishlist')} className="block px-3 py-2 text-base font-medium text-aura-black uppercase tracking-widest">My Wishlist ({wishlistCount})</button>
             <button onClick={() => handleNav('cart')} className="block px-3 py-2 text-base font-medium text-aura-black uppercase tracking-widest">My Cart ({cartCount})</button>

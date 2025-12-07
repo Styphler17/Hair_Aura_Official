@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Product } from '../backend/models';
 import { CartService } from '../services/cartService';
@@ -40,9 +41,10 @@ const Cart: React.FC<CartProps> = ({ onNavigate }) => {
 
     let message = "Hello Hair Aura! I would like to order the following items from my Cart:\n\n";
     items.forEach((item, index) => {
-      message += `${index + 1}. ${item.name} - ${currency}${item.price.toLocaleString()}\n`;
+      const link = `${window.location.origin}?product_id=${item.id}`;
+      message += `${index + 1}. *${item.name}* - ${currency}${item.price.toLocaleString()}\nLink: ${link}\n\n`;
     });
-    message += `\nTotal Price: ${currency}${calculateTotal().toLocaleString()}\n\nI am located in Ghana. Please confirm availability and delivery.`;
+    message += `Total Price: *${currency}${calculateTotal().toLocaleString()}*\n\nI am located in Ghana. Please confirm availability and delivery.`;
 
     const encodedMessage = encodeURIComponent(message);
     const url = `https://wa.me/${phoneNumber}?text=${encodedMessage}`;

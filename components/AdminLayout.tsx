@@ -1,5 +1,6 @@
+
 import React, { useState } from 'react';
-import { ShoppingBag, Settings, User, LogOut, ExternalLink, Menu, X } from 'lucide-react';
+import { ShoppingBag, Settings, User, LogOut, ExternalLink, Menu, X, BookOpen } from 'lucide-react';
 import BackToTop from './BackToTop';
 
 interface AdminLayoutProps {
@@ -57,6 +58,10 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage, onNavi
                 <ShoppingBag size={18} />
                 <span>Inventory</span>
               </li>
+              <li onClick={() => { onNavigate('admin-blog'); setIsSidebarOpen(false); }} className={navItemClass('admin-blog')}>
+                <BookOpen size={18} />
+                <span>Blog Posts</span>
+              </li>
             </ul>
           </div>
 
@@ -101,6 +106,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage, onNavi
             </button>
             <h2 className="text-lg md:text-xl font-serif font-bold text-aura-black">
               {currentPage === 'admin-products' && 'Product Inventory'}
+              {currentPage === 'admin-blog' && 'Blog Management'}
               {currentPage === 'admin-settings' && 'General Settings'}
               {currentPage === 'admin-profile' && 'Admin Profile'}
             </h2>
@@ -120,10 +126,8 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage, onNavi
         {/* Page Content */}
         <main className="flex-1 p-4 md:p-8 overflow-y-auto bg-neutral-50 relative">
           {children}
-          {/* Back to top added here to ensure it's within the scrolling container if applicable, or fixed to window */}
         </main>
         
-        {/* We place BackToTop here to ensure it renders for admin pages */}
         <BackToTop />
       </div>
     </div>

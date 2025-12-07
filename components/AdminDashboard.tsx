@@ -1,8 +1,10 @@
+
 import React from 'react';
 import AdminLayout from './AdminLayout';
 import AdminProducts from './AdminProducts';
 import AdminSettings from './AdminSettings';
 import AdminProfile from './AdminProfile';
+import AdminBlog from './AdminBlog';
 
 interface AdminDashboardProps {
   currentPage: string;
@@ -17,6 +19,8 @@ const AdminDashboard: React.FC<AdminDashboardProps> = ({ currentPage, onNavigate
         return <AdminSettings />;
       case 'admin-profile':
         return <AdminProfile />;
+      case 'admin-blog':
+        return <AdminBlog />;
       case 'admin-products':
       default:
         return <AdminProducts />;
