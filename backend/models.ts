@@ -22,6 +22,13 @@ export interface BlogPost {
   seoDescription: string; // Meta description
 }
 
+export interface Draft {
+  id: string;
+  type: 'product' | 'blog';
+  content: any; // Flexible JSON content
+  updatedAt: string;
+}
+
 export interface SocialLink {
   platform: 'TikTok' | 'Instagram' | 'Facebook' | 'Twitter' | 'YouTube' | 'Snapchat';
   url: string;

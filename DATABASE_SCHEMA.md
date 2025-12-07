@@ -106,7 +106,21 @@ CREATE TABLE `blog_posts` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 ```
 
-## 6. Indexes & Optimization
+## 6. Drafts Table
+Stores work-in-progress data for products or blogs.
+
+```sql
+CREATE TABLE `drafts` (
+  `id` VARCHAR(255) NOT NULL,
+  `type` ENUM('product', 'blog') NOT NULL,
+  `content` JSON NOT NULL, -- Stores the incomplete form data as JSON
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+```
+
+## 7. Indexes & Optimization
 ```sql
 CREATE INDEX idx_product_category ON products(category);
 CREATE INDEX idx_product_price ON products(price);
