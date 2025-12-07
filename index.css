@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Default Variables to prevent FOUC */
+:root {
+  --color-aura-black: #0a0a0a;
+  --color-aura-gray: #f5f5f5;
+  --color-aura-gold: #D4AF37;
+  --color-aura-gold-light: #F3E5AB;
+  --color-background: #ffffff;
+}
+
+body {
+  background-color: var(--color-background);
+  color: var(--color-aura-black);
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: transparent;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #e5e5e5;
+    border-radius: 20px;
+}
