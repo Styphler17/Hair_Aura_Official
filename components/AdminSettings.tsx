@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { SettingsController } from '../backend/controllers/settingsController';
 import { SiteSettings, SocialLink } from '../backend/models';
-import { Save, Upload, Plus, Trash2, Layout, Palette, RefreshCcw, Check, Share2, Loader } from 'lucide-react';
+import { Save, Upload, Plus, Trash2, Layout, Palette, RefreshCcw, Check, Share2, Loader, FileText } from 'lucide-react';
 import { optimizeImage } from '../utils/fileHelpers';
 
 const AdminSettings: React.FC = () => {
@@ -160,6 +160,59 @@ const AdminSettings: React.FC = () => {
                 value={settings.heroSubheadline}
                 onChange={(e) => handleChange('heroSubheadline', e.target.value)}
                 rows={2}
+                className="w-full border border-neutral-300 p-3 text-sm focus:outline-none focus:border-aura-black focus:ring-1 focus:ring-aura-gold resize-none"
+                style={inputStyle}
+              />
+            </div>
+          </div>
+        </section>
+
+        {/* Page Content Configuration */}
+        <section>
+          <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-400 mb-6 border-b border-neutral-100 pb-2 flex items-center gap-2">
+            <FileText size={14} /> Page Content
+          </h3>
+          <div className="space-y-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label className="block text-xs font-bold text-aura-black mb-2">About Page Title</label>
+                <input
+                  type="text"
+                  value={settings.aboutTitle}
+                  onChange={(e) => handleChange('aboutTitle', e.target.value)}
+                  className="w-full border border-neutral-300 p-3 text-sm focus:outline-none focus:border-aura-black focus:ring-1 focus:ring-aura-gold"
+                  style={inputStyle}
+                />
+              </div>
+              <div>
+                <label className="block text-xs font-bold text-aura-black mb-2">Contact Page Title</label>
+                <input
+                  type="text"
+                  value={settings.contactTitle}
+                  onChange={(e) => handleChange('contactTitle', e.target.value)}
+                  className="w-full border border-neutral-300 p-3 text-sm focus:outline-none focus:border-aura-black focus:ring-1 focus:ring-aura-gold"
+                  style={inputStyle}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-aura-black mb-2">About Page Content (Our Story)</label>
+              <textarea
+                value={settings.aboutContent}
+                onChange={(e) => handleChange('aboutContent', e.target.value)}
+                rows={5}
+                className="w-full border border-neutral-300 p-3 text-sm focus:outline-none focus:border-aura-black focus:ring-1 focus:ring-aura-gold resize-none"
+                style={inputStyle}
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-bold text-aura-black mb-2">Contact Page Intro Text</label>
+              <textarea
+                value={settings.contactContent}
+                onChange={(e) => handleChange('contactContent', e.target.value)}
+                rows={3}
                 className="w-full border border-neutral-300 p-3 text-sm focus:outline-none focus:border-aura-black focus:ring-1 focus:ring-aura-gold resize-none"
                 style={inputStyle}
               />

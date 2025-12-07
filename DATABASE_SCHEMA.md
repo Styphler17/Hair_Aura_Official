@@ -41,7 +41,7 @@ CREATE TABLE `products` (
 ```
 
 ## 3. Site Settings Table
-Stores global configuration. Usually contains a single row.
+Stores global configuration. usually contains a single row.
 
 ```sql
 CREATE TABLE `site_settings` (
@@ -63,6 +63,12 @@ CREATE TABLE `site_settings` (
   `hero_headline` VARCHAR(255),
   `hero_subheadline` TEXT,
   `hero_cta_text` VARCHAR(50),
+
+  -- Page Content
+  `about_title` VARCHAR(255) DEFAULT 'Our Story',
+  `about_content` TEXT,
+  `contact_title` VARCHAR(255) DEFAULT 'Get in Touch',
+  `contact_content` TEXT,
   
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;

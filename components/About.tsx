@@ -1,32 +1,33 @@
-import React from 'react';
+
+import React, { useState, useEffect } from 'react';
 import SEOHead from './SEOHead';
+import { SettingsController } from '../backend/controllers/settingsController';
+import { SiteSettings } from '../backend/models';
 
 const About: React.FC = () => {
+  const [settings, setSettings] = useState<SiteSettings>(SettingsController.getSettings());
+
+  useEffect(() => {
+    setSettings(SettingsController.getSettings());
+  }, []);
+
   return (
     <div className="bg-white">
       <SEOHead 
-        title="Our Story" 
+        title={settings.aboutTitle} 
         description="Learn about the Aura Standard. We source 100% virgin, single-donor hair ethically and provide the highest quality HD lace in Ghana."
       />
       {/* Header */}
       <div className="bg-neutral-50 py-24 text-center px-4">
-        <h1 className="text-4xl md:text-6xl font-serif font-bold mb-4 text-aura-black">Our Story</h1>
+        <h1 className="text-4xl md:text-6xl font-serif font-bold mb-4 text-aura-black">{settings.aboutTitle}</h1>
         <p className="text-neutral-400 uppercase tracking-widest text-xs">Redefining Luxury Hair</p>
       </div>
 
       {/* Main Content */}
       <div className="max-w-4xl mx-auto px-4 py-20">
-        <div className="prose prose-lg mx-auto text-neutral-600 font-light">
-          <p className="text-xl leading-relaxed mb-8 first-letter:text-5xl first-letter:font-serif first-letter:float-left first-letter:mr-3 first-letter:mt-[-10px] first-letter:text-aura-black">
-            Hair Aura was born from a desire to bring uncompromising quality to the hair extension market. 
-            We noticed a gap between high-end promises and actual product longevity. Our mission became clear: 
-            source only the finest raw virgin hair, ensuring that every bundle, wig, and closure meets our 
-            rigorous standards of excellence.
-          </p>
-          <p className="mb-8">
-            We believe that hair is an accessory that should empower you. Whether you are looking for a 
-            professional sleek look or vacation curls, our collection is curated to enhance your natural beauty 
-            without the hassle of tangling or shedding.
+        <div className="prose prose-lg mx-auto text-neutral-600 font-light whitespace-pre-line">
+          <p className="text-xl leading-relaxed first-letter:text-5xl first-letter:font-serif first-letter:float-left first-letter:mr-3 first-letter:mt-[-10px] first-letter:text-aura-black">
+            {settings.aboutContent}
           </p>
         </div>
       </div>

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MapPin, Facebook, Twitter, Youtube } from 'lucide-react';
 import { WhatsAppIcon, TikTokIcon, InstagramIcon, SnapchatIcon } from './Icons';
 import { SettingsController } from '../backend/controllers/settingsController';
@@ -7,7 +7,12 @@ import { SiteSettings } from '../backend/models';
 import SEOHead from './SEOHead';
 
 const Contact: React.FC = () => {
-  const [settings] = useState<SiteSettings>(SettingsController.getSettings());
+  const [settings, setSettings] = useState<SiteSettings>(SettingsController.getSettings());
+  
+  useEffect(() => {
+    setSettings(SettingsController.getSettings());
+  }, []);
+
   const whatsappUrl = `https://wa.me/${settings.phoneNumber}`;
 
   const renderSocialIcon = (platform: string, size: number) => {
@@ -25,19 +30,18 @@ const Contact: React.FC = () => {
   return (
     <div className="bg-white min-h-screen">
       <SEOHead 
-        title="Contact Us" 
+        title={settings.contactTitle} 
         description={`Get in touch with Hair Aura in Accra, Ghana. Order via WhatsApp or visit our location in ${settings.address}.`}
       />
       <div className="bg-neutral-50 py-24 text-center px-4">
-        <h1 className="text-4xl md:text-6xl font-serif font-bold mb-4 text-aura-black">Get in Touch</h1>
+        <h1 className="text-4xl md:text-6xl font-serif font-bold mb-4 text-aura-black">{settings.contactTitle}</h1>
         <p className="text-neutral-400 uppercase tracking-widest text-xs">Exclusively serving Ghana</p>
       </div>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
         <div className="text-center mb-16 max-w-2xl mx-auto">
-          <p className="text-lg text-neutral-600 font-light leading-relaxed">
-            We operate exclusively online and via WhatsApp to ensure a personalized luxury experience for our clients in Ghana. 
-            Connect with us directly for consultations and orders.
+          <p className="text-lg text-neutral-600 font-light leading-relaxed whitespace-pre-line">
+            {settings.contactContent}
           </p>
         </div>
 

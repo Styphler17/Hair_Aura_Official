@@ -169,3 +169,33 @@ if (move_uploaded_file($file['tmp_name'], $targetPath)) {
 }
 ?>
 ```
+
+## Phase 7: Create .htaccess (For Hostinger/Apache)
+
+React is a Single Page Application (SPA). This means all page requests (like `/shop` or `/contact`) need to be handled by the main `index.html` file. If you don't add this file, refreshing a page will cause a **404 Not Found** error.
+
+1.  In Hostinger File Manager, go to `public_html`.
+2.  Create a file named `.htaccess` (ensure the dot is at the start).
+3.  Paste the following code:
+
+```apache
+<IfModule mod_rewrite.c>
+  RewriteEngine On
+  RewriteBase /
+  RewriteRule ^index\.html$ - [L]
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteRule . /index.html [L]
+</IfModule>
+```
+
+## Phase 8: Create _redirects (For Netlify)
+
+If you are also testing on Netlify, you need this file for the same reason (to fix page refresh errors).
+
+1.  Create a file named `_redirects` (no extension).
+2.  Paste the following code:
+
+```text
+/*  /index.html  200
+```

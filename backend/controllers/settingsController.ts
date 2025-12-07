@@ -30,7 +30,13 @@ const DEFAULT_SETTINGS: SiteSettings = {
   heroImage: DEFAULT_HERO_IMAGE,
   heroHeadline: 'Unleash Your Inner Aura',
   heroSubheadline: 'Experience the pinnacle of luxury with our ethically sourced, cuticle-aligned hair extensions. Served exclusively in Accra.',
-  heroCtaText: 'Shop Now'
+  heroCtaText: 'Shop Now',
+
+  // Page Content Defaults
+  aboutTitle: 'Our Story',
+  aboutContent: `Hair Aura was born from a desire to bring uncompromising quality to the hair extension market. We noticed a gap between high-end promises and actual product longevity. Our mission became clear: source only the finest raw virgin hair, ensuring that every bundle, wig, and closure meets our rigorous standards of excellence.\n\nWe believe that hair is an accessory that should empower you. Whether you are looking for a professional sleek look or vacation curls, our collection is curated to enhance your natural beauty without the hassle of tangling or shedding.`,
+  contactTitle: 'Get in Touch',
+  contactContent: `We operate exclusively online and via WhatsApp to ensure a personalized luxury experience for our clients in Ghana. Connect with us directly for consultations and orders.`
 };
 
 export const SettingsController = {
@@ -48,6 +54,11 @@ export const SettingsController = {
         colorText: parsed.colorText || parsed.brandColor || DEFAULT_SETTINGS.colorText,
         colorBackground: parsed.colorBackground || DEFAULT_SETTINGS.colorBackground,
         colorAccent: parsed.colorAccent || DEFAULT_SETTINGS.colorAccent,
+        // Ensure new fields have defaults if loading from old storage
+        aboutTitle: parsed.aboutTitle || DEFAULT_SETTINGS.aboutTitle,
+        aboutContent: parsed.aboutContent || DEFAULT_SETTINGS.aboutContent,
+        contactTitle: parsed.contactTitle || DEFAULT_SETTINGS.contactTitle,
+        contactContent: parsed.contactContent || DEFAULT_SETTINGS.contactContent,
       };
     }
     return DEFAULT_SETTINGS;

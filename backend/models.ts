@@ -49,6 +49,12 @@ export interface SiteSettings {
   heroHeadline: string;
   heroSubheadline: string;
   heroCtaText: string;
+
+  // Page Content Management
+  aboutTitle: string;
+  aboutContent: string; // Supports simple text or HTML if needed
+  contactTitle: string;
+  contactContent: string;
 }
 
 export type AdminRole = 'Super Admin' | 'Editor' | 'Viewer';
