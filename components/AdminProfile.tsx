@@ -5,7 +5,13 @@ import { AdminUser, AdminRole } from '../backend/models';
 
 const AdminProfile: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<AdminUser>(AuthController.getCurrentUser());
-  const [users, setUsers] = useState<AdminUser[]>(AuthController.getUsers());
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  
+  // Profile Edit State
+  const [isEditingProfile, setIsEditingProfile] = useState(false);
+  const [editedName, setEditedName] = useState('');
+  const [editedEmail, setEditedEmail] = useState('');
+  const [avatarPath, setAvatarPath] = useState('');
   
   // Password State
   const [currentPass, setCurrentPass] = useState('');
@@ -21,51 +27,106 @@ const AdminProfile: React.FC = () => {
   const [visiblePasswordId, setVisiblePasswordId] = useState<string | null>(null);
 
   useEffect(() => {
-    setUsers(AuthController.getUsers());
+    loadUsers();
   }, []);
+  
+  const loadUsers = async () => {
+    const fetchedUsers = await AuthController.getUsers();
+    setUsers(fetchedUsers);
+  };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onloadend = () => {
+      reader.onloadend = async () => {
         const base64String = reader.result as string;
-        const updated = AuthController.updateCurrentUser({ avatar: base64String });
+        const updated = await AuthController.updateCurrentUser({ avatar: base64String });
         setCurrentUser(updated);
-        setUsers(AuthController.getUsers());
+        await loadUsers();
         // Dispatch event to update avatar in AdminLayout topbar
         window.dispatchEvent(new Event('profile-updated'));
       };
       reader.readAsDataURL(file);
     }
   };
+  
+  const handleAvatarPathLoad = async () => {
+    if (avatarPath) {
+      const updated = await AuthController.updateCurrentUser({ avatar: avatarPath });
+      setCurrentUser(updated);
+      await loadUsers();
+      setAvatarPath('');
+      // Dispatch event to update avatar in AdminLayout topbar
+      window.dispatchEvent(new Event('profile-updated'));
+      alert("Avatar updated successfully from path.");
+    }
+  };
 
-  const handlePasswordUpdate = (e: React.FormEvent) => {
+  const handlePasswordUpdate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPass !== confirmPass) {
         alert("Passwords do not match");
         return;
     }
-    AuthController.updateCurrentUser({ password: newPass });
-    alert("Password updated successfully.");
-    setCurrentPass('');
-    setNewPass('');
-    setConfirmPass('');
-  };
-
-  const handleAddUser = (e: React.FormEvent) => {
-    e.preventDefault();
-    AuthController.addUser(newUser);
-    setUsers(AuthController.getUsers());
-    setIsAddingUser(false);
-    setNewUser({ name: '', email: '', password: '', role: 'Editor' });
-  };
-
-  const handleDeleteUser = (id: string) => {
-    if (window.confirm('Are you sure you want to remove this admin user?')) {
-      AuthController.deleteUser(id);
-      setUsers(AuthController.getUsers());
+    try {
+      await AuthController.updateCurrentUser({ password: newPass });
+      alert("Password updated successfully.");
+      setCurrentPass('');
+      setNewPass('');
+      setConfirmPass('');
+    } catch (error) {
+      alert("Failed to update password: " + (error as Error).message);
     }
+  };
+  
+  const handleProfileUpdate = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      const updated = await AuthController.updateCurrentUser({
+        name: editedName,
+        email: editedEmail
+      });
+      setCurrentUser(updated);
+      await loadUsers();
+      setIsEditingProfile(false);
+      // Dispatch event to update in AdminLayout topbar
+      window.dispatchEvent(new Event('profile-updated'));
+      alert("Profile updated successfully.");
+    } catch (error) {
+      alert("Failed to update profile: " + (error as Error).message);
+    }
+  };
+
+  const handleAddUser = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await AuthController.addUser(newUser);
+      await loadUsers();
+      setIsAddingUser(false);
+      setNewUser({ name: '', email: '', password: '', role: 'Editor' });
+      alert("User created successfully!");
+    } catch (error) {
+      alert("Failed to create user: " + (error as Error).message);
+    }
+  };
+
+  const handleDeleteUser = async (id: string) => {
+    if (window.confirm('Are you sure you want to remove this admin user?')) {
+      try {
+        await AuthController.deleteUser(id);
+        await loadUsers();
+        alert("User deleted successfully!");
+      } catch (error) {
+        alert("Failed to delete user: " + (error as Error).message);
+      }
+    }
+  };
+  
+  const startEditingProfile = () => {
+    setEditedName(currentUser.name);
+    setEditedEmail(currentUser.email);
+    setIsEditingProfile(true);
   };
 
   const inputStyle = { backgroundColor: '#ffffff', color: '#0a0a0a' };
@@ -83,25 +144,100 @@ const AdminProfile: React.FC = () => {
           
           {/* Profile Card */}
           <div className="bg-white p-8 border border-neutral-200 rounded-sm shadow-sm">
-            <div className="flex flex-col items-center text-center">
-              <div className="relative mb-6 group cursor-pointer">
-                <div className="w-24 h-24 bg-aura-black rounded-full flex items-center justify-center text-white font-serif text-3xl overflow-hidden border-4 border-white shadow-lg">
-                  {currentUser.avatar ? (
-                    <img src={currentUser.avatar} alt="Profile" className="w-full h-full object-cover" />
-                  ) : (
-                    currentUser.name.charAt(0).toUpperCase()
-                  )}
+            {!isEditingProfile ? (
+              <div className="flex flex-col items-center text-center">
+                <div className="relative mb-6 group cursor-pointer">
+                  <div className="w-24 h-24 bg-aura-black rounded-full flex items-center justify-center text-white font-serif text-3xl overflow-hidden border-4 border-white shadow-lg">
+                    {currentUser.avatar ? (
+                      <img src={currentUser.avatar} alt="Profile" className="w-full h-full object-cover" />
+                    ) : (
+                      currentUser.name.charAt(0).toUpperCase()
+                    )}
+                  </div>
+                  <label className="absolute bottom-0 right-0 bg-aura-gold text-aura-black p-2 rounded-full cursor-pointer hover:bg-white hover:text-aura-black transition-colors shadow-sm">
+                    <Camera size={14} />
+                    <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
+                  </label>
                 </div>
-                <label className="absolute bottom-0 right-0 bg-aura-gold text-aura-black p-2 rounded-full cursor-pointer hover:bg-white hover:text-aura-black transition-colors shadow-sm">
-                  <Camera size={14} />
-                  <input type="file" className="hidden" accept="image/*" onChange={handleImageUpload} />
-                </label>
+                
+                <h3 className="font-bold text-xl text-aura-black">{currentUser.name}</h3>
+                <p className="text-neutral-400 text-xs uppercase tracking-widest mb-4">{currentUser.role}</p>
+                <p className="text-neutral-500 text-sm mb-4">{currentUser.email}</p>
+                
+                <button 
+                  onClick={startEditingProfile}
+                  className="text-xs font-bold uppercase tracking-widest text-aura-gold hover:text-aura-black transition-colors"
+                >
+                  Edit Profile
+                </button>
               </div>
-              
-              <h3 className="font-bold text-xl text-aura-black">{currentUser.name}</h3>
-              <p className="text-neutral-400 text-xs uppercase tracking-widest mb-4">{currentUser.role}</p>
-              <p className="text-neutral-500 text-sm">{currentUser.email}</p>
-            </div>
+            ) : (
+              <form onSubmit={handleProfileUpdate} className="space-y-4">
+                <h3 className="text-xs font-bold uppercase tracking-widest text-neutral-400 border-b border-neutral-100 pb-4 mb-4">Edit Profile</h3>
+                
+                <div>
+                  <label className="block text-[10px] font-bold text-aura-black mb-1 uppercase tracking-wider">Full Name</label>
+                  <input
+                    type="text"
+                    value={editedName}
+                    onChange={(e) => setEditedName(e.target.value)}
+                    className="w-full border border-neutral-300 p-3 text-sm focus:outline-none focus:border-aura-black focus:ring-1 focus:ring-aura-gold"
+                    style={inputStyle}
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-[10px] font-bold text-aura-black mb-1 uppercase tracking-wider">Email Address</label>
+                  <input
+                    type="email"
+                    value={editedEmail}
+                    onChange={(e) => setEditedEmail(e.target.value)}
+                    className="w-full border border-neutral-300 p-3 text-sm focus:outline-none focus:border-aura-black focus:ring-1 focus:ring-aura-gold"
+                    style={inputStyle}
+                    required
+                  />
+                </div>
+                
+                <div>
+                  <label className="block text-[10px] font-bold text-aura-black mb-1 uppercase tracking-wider">Avatar Path (URL or Database Path)</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      value={avatarPath}
+                      onChange={(e) => setAvatarPath(e.target.value)}
+                      placeholder="https://example.com/avatar.jpg or /uploads/avatar.jpg"
+                      className="flex-1 border border-neutral-300 p-3 text-sm focus:outline-none focus:border-aura-black focus:ring-1 focus:ring-aura-gold"
+                      style={inputStyle}
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAvatarPathLoad}
+                      className="bg-neutral-100 hover:bg-aura-gold hover:text-aura-black px-4 py-2 text-xs font-bold uppercase tracking-widest transition-colors"
+                    >
+                      Load
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-neutral-400 mt-1">Or upload a file using the camera icon above</p>
+                </div>
+                
+                <div className="flex gap-2">
+                  <button 
+                    type="submit"
+                    className="flex-1 bg-aura-black text-white px-4 py-3 uppercase text-xs font-bold tracking-widest hover:bg-neutral-800 transition-colors"
+                  >
+                    Save Changes
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={() => setIsEditingProfile(false)}
+                    className="flex-1 bg-neutral-100 text-neutral-600 px-4 py-3 uppercase text-xs font-bold tracking-widest hover:bg-neutral-200 transition-colors"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </form>
+            )}
           </div>
 
           {/* Change Password */}
