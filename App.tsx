@@ -39,7 +39,15 @@ const App: React.FC = () => {
     }
 
     if (!currentPage.startsWith('admin')) {
-      setSettings(SettingsController.getSettings());
+      const currentSettings = SettingsController.getSettings();
+      setSettings(currentSettings);
+      
+      const handleSettingsUpdate = () => {
+        setSettings(SettingsController.getSettings());
+      };
+      
+      window.addEventListener('settings-updated', handleSettingsUpdate);
+      return () => window.removeEventListener('settings-updated', handleSettingsUpdate);
     }
   }, [currentPage]);
 
@@ -100,7 +108,7 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white text-aura-black selection:bg-aura-black selection:text-white flex flex-col transition-colors duration-500">
+    <div className="min-h-screen bg-white selection:bg-aura-black selection:text-white flex flex-col transition-colors duration-500" style={{ color: settings.colorText }}>
       <GlobalStyles />
       
       {settings.favicon && (
@@ -111,20 +119,20 @@ const App: React.FC = () => {
         <Header onNavigate={handleNavigate} currentPage={currentPage} />
       )}
       
-      <main className="flex-grow">
+      <main className="flex-grow flex flex-col">
         {renderPage()}
       </main>
 
       {!currentPage.startsWith('admin') && <BackToTop />}
 
       {!currentPage.startsWith('admin') && (
-        <footer className="bg-white border-t border-neutral-100 pt-16 pb-8">
+        <footer className="bg-white border-t border-neutral-100 pt-16 pb-8 mt-auto">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-8">
             <div className="text-center md:text-left cursor-pointer" onClick={() => { handleNavigate('home'); }}>
               {settings.logo ? (
                  <img src={settings.logo} alt="Hair Aura" className="h-8 w-auto object-contain mx-auto md:mx-0 mb-2" />
               ) : (
-                <span className="font-serif text-2xl font-bold tracking-tighter text-aura-black">
+                <span className="font-serif text-2xl font-bold tracking-tighter" style={{ color: settings.colorText }}>
                   HAIR AURA<span className="text-3xl text-neutral-400">.</span>
                 </span>
               )}
@@ -132,9 +140,24 @@ const App: React.FC = () => {
             </div>
             
             <div className="flex gap-6">
-              <a href={`https://wa.me/${settings.phoneNumber}`} target="_blank" rel="noopener noreferrer" className="text-aura-black hover:text-neutral-500 transition-colors"><WhatsAppIcon size={20} /></a>
+              <a 
+                href={`https://wa.me/${settings.phoneNumber}`} 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                className="transition-opacity hover:opacity-70"
+                style={{ color: settings.colorAccent }}
+              >
+                <WhatsAppIcon size={20} />
+              </a>
               {settings.socialLinks?.map((link, idx) => (
-                <a key={idx} href={link.url} target="_blank" rel="noopener noreferrer" className="text-aura-black hover:text-neutral-500 transition-colors">
+                <a 
+                  key={idx} 
+                  href={link.url} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="transition-opacity hover:opacity-70"
+                  style={{ color: settings.colorAccent }}
+                >
                   {renderSocialIcon(link.platform, 20)}
                 </a>
               ))}
@@ -142,11 +165,15 @@ const App: React.FC = () => {
 
             <div className="text-center md:text-right text-xs text-neutral-400 flex flex-col gap-2">
               <div className="flex gap-4 justify-center md:justify-end mb-2">
-                <button onClick={() => handleNavigate('terms')} className="hover:text-aura-black">Terms</button>
-                <button onClick={() => handleNavigate('privacy')} className="hover:text-aura-black">Privacy</button>
+                <button onClick={() => handleNavigate('terms')} className="hover:text-aura-black transition-colors" style={{ color: settings.colorText }}>Terms</button>
+                <button onClick={() => handleNavigate('privacy')} className="hover:text-aura-black transition-colors" style={{ color: settings.colorText }}>Privacy</button>
               </div>
               <p>&copy; {new Date().getFullYear()} Hair Aura. Ghana.</p>
-              <button onClick={() => { handleNavigate('admin-products'); }} className="hover:text-aura-black transition-colors text-[10px] uppercase tracking-wider">
+              <button 
+                onClick={() => { handleNavigate('admin-products'); }} 
+                className="hover:opacity-70 transition-opacity text-[10px] uppercase tracking-wider"
+                style={{ color: settings.colorText }}
+              >
                 Staff Access
               </button>
             </div>

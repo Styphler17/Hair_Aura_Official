@@ -30,12 +30,18 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
       setCartCount(CartService.getCart().length);
     };
 
+    const handleSettingsUpdate = () => {
+      setSettings(SettingsController.getSettings());
+    };
+
     window.addEventListener('wishlist-updated', handleWishlistUpdate);
     window.addEventListener('cart-updated', handleCartUpdate);
+    window.addEventListener('settings-updated', handleSettingsUpdate);
     
     return () => {
       window.removeEventListener('wishlist-updated', handleWishlistUpdate);
       window.removeEventListener('cart-updated', handleCartUpdate);
+      window.removeEventListener('settings-updated', handleSettingsUpdate);
     };
   }, []);
 
@@ -45,13 +51,10 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
     window.scrollTo(0, 0);
   };
 
-  const linkClass = (page: string) => `
-    cursor-pointer uppercase text-xs tracking-widest font-bold transition-colors
-    ${currentPage === page || (page === 'blog' && currentPage === 'blog-post') ? 'text-aura-black border-b-2 border-aura-black pb-1' : 'text-neutral-500 hover:text-aura-black'}
-  `;
+  const isActive = (page: string) => currentPage === page || (page === 'blog' && currentPage === 'blog-post');
 
   return (
-    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-100">
+    <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-100 transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-20">
           
@@ -60,55 +63,92 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
             {settings.logo ? (
               <img src={settings.logo} alt="Hair Aura" className="h-12 w-auto object-contain" />
             ) : (
-              <span className="font-serif text-3xl font-bold tracking-tighter text-aura-black">
+              <span className="font-serif text-3xl font-bold tracking-tighter" style={{ color: settings.colorText }}>
                 HAIR AURA<span className="text-4xl text-neutral-400">.</span>
               </span>
             )}
           </div>
 
           <div className="hidden md:flex space-x-10 items-center">
-            <button onClick={() => handleNav('shop')} className={linkClass('shop')}>Shop Collection</button>
-            <button onClick={() => handleNav('about')} className={linkClass('about')}>Our Story</button>
-            <button onClick={() => handleNav('blog')} className={linkClass('blog')}>The Journal</button>
-            <button onClick={() => handleNav('contact')} className={linkClass('contact')}>Contact</button>
+            {['shop', 'about', 'blog', 'contact'].map((page) => (
+              <button 
+                key={page}
+                onClick={() => handleNav(page)} 
+                className={`cursor-pointer uppercase text-xs tracking-widest font-bold transition-all duration-300 pb-1 border-b-2`}
+                style={{ 
+                  color: isActive(page) ? settings.colorText : '#737373', // Neutral-500 default
+                  borderColor: isActive(page) ? settings.colorAccent : 'transparent'
+                }}
+                onMouseEnter={(e) => e.currentTarget.style.color = settings.colorText}
+                onMouseLeave={(e) => e.currentTarget.style.color = isActive(page) ? settings.colorText : '#737373'}
+              >
+                {page === 'blog' ? 'The Journal' : page === 'about' ? 'Our Story' : page === 'shop' ? 'Shop Collection' : page}
+              </button>
+            ))}
             
             {/* Wishlist Icon */}
-            <button onClick={() => handleNav('wishlist')} className="relative text-neutral-500 hover:text-aura-black transition-colors" title="Wishlist">
+            <button 
+              onClick={() => handleNav('wishlist')} 
+              className="relative transition-colors text-neutral-500 hover:text-opacity-80" 
+              title="Wishlist"
+              style={{ color: currentPage === 'wishlist' ? settings.colorText : undefined }}
+            >
               <Heart size={20} />
               {wishlistCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-aura-black text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
+                <span 
+                  className="absolute -top-2 -right-2 text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full"
+                  style={{ backgroundColor: settings.colorText }}
+                >
                   {wishlistCount}
                 </span>
               )}
             </button>
 
             {/* Cart Icon */}
-            <button onClick={() => handleNav('cart')} className="relative text-neutral-500 hover:text-aura-black transition-colors" title="Cart">
+            <button 
+              onClick={() => handleNav('cart')} 
+              className="relative transition-colors text-neutral-500 hover:text-opacity-80" 
+              title="Cart"
+              style={{ color: currentPage === 'cart' ? settings.colorText : undefined }}
+            >
               <ShoppingBag size={20} />
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-aura-gold text-aura-black text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
+                <span 
+                  className="absolute -top-2 -right-2 text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full"
+                  style={{ backgroundColor: settings.colorAccent, color: settings.colorText }}
+                >
                   {cartCount}
                 </span>
               )}
             </button>
 
-            <a href={`https://wa.me/${settings.phoneNumber}`} target="_blank" rel="noopener noreferrer" className="bg-aura-black text-white px-6 py-2 rounded-sm uppercase text-xs tracking-widest hover:bg-neutral-800 transition-colors">
+            <a 
+              href={`https://wa.me/${settings.phoneNumber}`} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              className="px-6 py-2 rounded-sm uppercase text-xs tracking-widest hover:opacity-90 transition-opacity text-white"
+              style={{ backgroundColor: settings.colorText }}
+            >
               Book Consultation
             </a>
           </div>
 
           <div className="md:hidden flex items-center gap-4">
-            <button onClick={() => handleNav('cart')} className="relative text-aura-black">
+            <button onClick={() => handleNav('cart')} className="relative" style={{ color: settings.colorText }}>
               <ShoppingBag size={24} />
               {cartCount > 0 && (
-                <span className="absolute -top-2 -right-2 bg-aura-gold text-aura-black text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full">
+                <span 
+                  className="absolute -top-2 -right-2 text-white text-[9px] font-bold w-4 h-4 flex items-center justify-center rounded-full"
+                  style={{ backgroundColor: settings.colorAccent, color: settings.colorText }}
+                >
                   {cartCount}
                 </span>
               )}
             </button>
             <button
               onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-aura-black focus:outline-none"
+              className="focus:outline-none"
+              style={{ color: settings.colorText }}
             >
               {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
@@ -119,12 +159,18 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
       {isMenuOpen && (
         <div className="md:hidden bg-white border-b border-neutral-100 absolute w-full shadow-lg">
           <div className="px-4 pt-2 pb-6 space-y-4 flex flex-col items-center">
-            <button onClick={() => handleNav('shop')} className="block px-3 py-2 text-base font-medium text-aura-black uppercase tracking-widest">Shop Collection</button>
-            <button onClick={() => handleNav('about')} className="block px-3 py-2 text-base font-medium text-aura-black uppercase tracking-widest">Our Story</button>
-            <button onClick={() => handleNav('blog')} className="block px-3 py-2 text-base font-medium text-aura-black uppercase tracking-widest">The Journal</button>
-            <button onClick={() => handleNav('contact')} className="block px-3 py-2 text-base font-medium text-aura-black uppercase tracking-widest">Contact</button>
-            <button onClick={() => handleNav('wishlist')} className="block px-3 py-2 text-base font-medium text-aura-black uppercase tracking-widest">My Wishlist ({wishlistCount})</button>
-            <button onClick={() => handleNav('cart')} className="block px-3 py-2 text-base font-medium text-aura-black uppercase tracking-widest">My Cart ({cartCount})</button>
+            {['shop', 'about', 'blog', 'contact'].map((page) => (
+              <button 
+                key={page}
+                onClick={() => handleNav(page)} 
+                className="block px-3 py-2 text-base font-medium uppercase tracking-widest"
+                style={{ color: settings.colorText }}
+              >
+                {page === 'blog' ? 'The Journal' : page === 'about' ? 'Our Story' : page === 'shop' ? 'Shop Collection' : page}
+              </button>
+            ))}
+            <button onClick={() => handleNav('wishlist')} className="block px-3 py-2 text-base font-medium uppercase tracking-widest" style={{ color: settings.colorText }}>My Wishlist ({wishlistCount})</button>
+            <button onClick={() => handleNav('cart')} className="block px-3 py-2 text-base font-medium uppercase tracking-widest" style={{ color: settings.colorText }}>My Cart ({cartCount})</button>
           </div>
         </div>
       )}
