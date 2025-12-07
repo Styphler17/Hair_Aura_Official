@@ -1,7 +1,9 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { ShoppingBag, Settings, User, LogOut, ExternalLink, Menu, X, BookOpen, LayoutDashboard } from 'lucide-react';
 import BackToTop from './BackToTop';
+import { AuthController } from '../backend/controllers/authController';
+import { AdminUser } from '../backend/models';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -12,6 +14,22 @@ interface AdminLayoutProps {
 
 const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage, onNavigate, onLogout }) => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [currentUser, setCurrentUser] = useState<AdminUser | null>(null);
+
+  useEffect(() => {
+    // Fetch current user on mount
+    const user = AuthController.getCurrentUser();
+    setCurrentUser(user);
+
+    // Listen for profile updates
+    const handleProfileUpdate = () => {
+      const updatedUser = AuthController.getCurrentUser();
+      setCurrentUser(updatedUser);
+    };
+
+    window.addEventListener('profile-updated', handleProfileUpdate);
+    return () => window.removeEventListener('profile-updated', handleProfileUpdate);
+  }, []);
   
   const navItemClass = (page: string) => `
     flex items-center gap-3 px-4 py-3 text-sm font-medium transition-all duration-200 cursor-pointer mb-1 border-l-4
@@ -126,13 +144,21 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage, onNavi
           </div>
           
           <div className="flex items-center gap-4">
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-bold text-aura-black">Admin User</p>
-              <p className="text-[10px] text-aura-gold uppercase tracking-wider font-bold">Super Admin</p>
-            </div>
-            <div className="w-10 h-10 bg-aura-black text-aura-gold border-2 border-aura-gold rounded-full flex items-center justify-center font-serif font-bold shadow-md">
-              A
-            </div>
+            {currentUser && (
+              <>
+                <div className="text-right hidden sm:block">
+                  <p className="text-sm font-bold text-aura-black">{currentUser.name}</p>
+                  <p className="text-[10px] text-aura-gold uppercase tracking-wider font-bold">{currentUser.role}</p>
+                </div>
+                <div className="w-10 h-10 bg-aura-black text-aura-gold border-2 border-aura-gold rounded-full flex items-center justify-center font-serif font-bold shadow-md overflow-hidden">
+                  {currentUser.avatar ? (
+                    <img src={currentUser.avatar} alt={currentUser.name} className="w-full h-full object-cover" />
+                  ) : (
+                    <span>{currentUser.name.charAt(0).toUpperCase()}</span>
+                  )}
+                </div>
+              </>
+            )}
           </div>
         </header>
 

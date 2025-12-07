@@ -33,6 +33,8 @@ const AdminProfile: React.FC = () => {
         const updated = AuthController.updateCurrentUser({ avatar: base64String });
         setCurrentUser(updated);
         setUsers(AuthController.getUsers());
+        // Dispatch event to update avatar in AdminLayout topbar
+        window.dispatchEvent(new Event('profile-updated'));
       };
       reader.readAsDataURL(file);
     }
