@@ -1,3 +1,4 @@
+
 import { Product, WhatsAppConfig } from './types';
 
 // Updated to the provided Ghana number
@@ -20,6 +21,7 @@ export const PRODUCTS: Product[] = [
     ],
     category: 'wigs',
     tags: ['Best Seller', 'HD Lace'],
+    colors: ['Natural Black', 'Jet Black'],
     seoKeywords: 'straight wig, bone straight, ghana wigs, hd lace accra'
   },
   {
@@ -34,6 +36,7 @@ export const PRODUCTS: Product[] = [
     ],
     category: 'bundles',
     tags: ['Bundle Deal'],
+    colors: ['Natural Black', 'Dark Brown'],
     seoKeywords: 'body wave, hair bundles, virgin hair ghana'
   },
   {
@@ -48,6 +51,7 @@ export const PRODUCTS: Product[] = [
     ],
     category: 'wigs',
     tags: ['Vacation Ready'],
+    colors: ['Natural Black'],
     seoKeywords: 'curly wig, deep wave, frontal wig'
   },
   {
@@ -62,6 +66,7 @@ export const PRODUCTS: Product[] = [
     ],
     category: 'bundles',
     tags: ['613 Blonde'],
+    colors: ['613 Blonde'],
     seoKeywords: 'blonde hair, 613 bundles, platinum hair accra'
   },
   {
@@ -75,6 +80,7 @@ export const PRODUCTS: Product[] = [
     ],
     category: 'closures',
     tags: ['Beginner Friendly'],
+    colors: ['Natural Black', 'Dark Brown', '613 Blonde'],
     seoKeywords: 'closure, 5x5 closure, transparent lace'
   },
   {
@@ -88,6 +94,7 @@ export const PRODUCTS: Product[] = [
     ],
     category: 'bundles',
     tags: ['Natural Texture'],
+    colors: ['Natural Black'],
     seoKeywords: 'kinky straight, clip ins, natural hair extensions'
   },
    {
@@ -99,6 +106,7 @@ export const PRODUCTS: Product[] = [
     images: ['https://picsum.photos/id/342/800/800'],
     category: 'wigs',
     tags: ['Raw Hair'],
+    colors: ['Natural Black'],
     seoKeywords: 'burmese hair, curly wig, raw hair ghana'
   },
    {
@@ -110,6 +118,7 @@ export const PRODUCTS: Product[] = [
     images: ['https://picsum.photos/id/433/800/800'],
     category: 'wigs',
     tags: ['Short Style'],
+    colors: ['Piano Highlight (P4/27)'],
     seoKeywords: 'bob wig, highlighted hair, piano color'
   }
 ];

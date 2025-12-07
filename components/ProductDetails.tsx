@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Product } from '../backend/models';
-import { ProductService } from '../services/productService';
+import { ProductController } from '../backend/controllers/productController';
 import { WishlistService } from '../services/wishlistService';
 import { CartService } from '../services/cartService';
 import { SettingsController } from '../backend/controllers/settingsController';
@@ -25,8 +25,8 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId, onNavigate }
   const [siteUrl, setSiteUrl] = useState('');
 
   useEffect(() => {
-    // Fetch Product
-    const allProducts = ProductService.getAll();
+    // Fetch Product using Controller (Same source as Admin)
+    const allProducts = ProductController.getAll();
     const found = allProducts.find(p => p.id === productId);
     const settings = SettingsController.getSettings();
     setPhoneNumber(settings.phoneNumber);

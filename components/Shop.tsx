@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
 import ProductCard from './ProductCard';
-import { ProductService } from '../services/productService';
+import { ProductController } from '../backend/controllers/productController';
 import { Product } from '../backend/models';
 import { ChevronDown, SlidersHorizontal, X, Search, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import SEOHead from './SEOHead';
@@ -28,8 +28,9 @@ const Shop: React.FC<ShopProps> = ({ onNavigate }) => {
 
   useEffect(() => {
     setIsLoading(true);
+    // Simulate loading delay for "luxury" feel, but fetch from correct Controller
     const timer = setTimeout(() => {
-      setProducts(ProductService.getAll());
+      setProducts(ProductController.getAll());
       setIsLoading(false);
     }, 800);
     return () => clearTimeout(timer);
