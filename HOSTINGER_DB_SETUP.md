@@ -96,10 +96,10 @@ Now, update your React code to fetch from this live URL instead of LocalStorage.
 // Old LocalStorage way:
 // getAll: () => JSON.parse(localStorage.getItem('products'))
 
-// New Live Hostinger way:
+// New Live Hostinger way (for your subdomain):
 getAll: async () => {
     try {
-        const response = await fetch('https://your-domain.com/api/get_products.php');
+        const response = await fetch('https://hair-aura.debesties.com/api/get_products.php');
         const data = await response.json();
         return data;
     } catch (error) {
