@@ -16,13 +16,16 @@ const BlogPostPage: React.FC<BlogPostProps> = ({ id, onNavigate }) => {
   const [relatedPosts, setRelatedPosts] = useState<BlogPost[]>([]);
 
   useEffect(() => {
-    const found = BlogController.getById(id);
-    if (found) {
-      setPost(found);
-      const all = BlogController.getAll();
-      setRelatedPosts(all.filter(p => p.id !== id).slice(0, 3));
-      window.scrollTo(0,0);
-    }
+    const fetchPost = async () => {
+      const found = await BlogController.getById(id);
+      if (found) {
+        setPost(found);
+        const all = await BlogController.getAll();
+        setRelatedPosts(all.filter(p => p.id !== id).slice(0, 3));
+        window.scrollTo(0,0);
+      }
+    };
+    fetchPost();
   }, [id]);
 
   if (!post) return <div className="min-h-screen flex items-center justify-center">Loading...</div>;

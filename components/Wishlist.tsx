@@ -16,9 +16,12 @@ const Wishlist: React.FC<WishlistProps> = ({ onNavigate }) => {
   const [currency, setCurrency] = useState('GH₵');
 
   useEffect(() => {
-    setItems(WishlistService.getWishlist());
-    const settings = SettingsController.getSettings();
-    setCurrency(settings.currencySymbol);
+    const fetchData = async () => {
+      setItems(WishlistService.getWishlist());
+      const settings = await SettingsController.getSettings();
+      setCurrency(settings.currencySymbol);
+    };
+    fetchData();
 
     const handleUpdate = () => {
       setItems(WishlistService.getWishlist());

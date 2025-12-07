@@ -5,9 +5,9 @@ header("Access-Control-Allow-Headers: Content-Type");
 header("Content-Type: application/json; charset=UTF-8");
 
 $servername = "localhost"; // Hostinger usually uses 'localhost'
-$username = "u123456789_admin"; // YOUR Hostinger DB Username - UPDATE THIS
+$username = "u509059322_admin"; // YOUR Hostinger DB Username - UPDATE THIS
 $password = "YourStrongPassword!"; // YOUR Hostinger DB Password - UPDATE THIS
-$dbname = "u123456789_hairaura"; // YOUR Hostinger DB Name - UPDATE THIS
+$dbname = "u509059322_hairaura"; // YOUR Hostinger DB Name
 
 // Create connection
 $conn = new mysqli($servername, $username, $password, $dbname);

@@ -7,10 +7,14 @@ import { SiteSettings } from '../backend/models';
 import SEOHead from './SEOHead';
 
 const Contact: React.FC = () => {
-  const [settings, setSettings] = useState<SiteSettings>(SettingsController.getSettings());
+  const [settings, setSettings] = useState<SiteSettings>(SettingsController.getSettingsSync());
   
   useEffect(() => {
-    setSettings(SettingsController.getSettings());
+    const fetchSettings = async () => {
+      const fetchedSettings = await SettingsController.getSettings();
+      setSettings(fetchedSettings);
+    };
+    fetchSettings();
   }, []);
 
   const whatsappUrl = `https://wa.me/${settings.phoneNumber}`;

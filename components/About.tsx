@@ -5,10 +5,14 @@ import { SettingsController } from '../backend/controllers/settingsController';
 import { SiteSettings } from '../backend/models';
 
 const About: React.FC = () => {
-  const [settings, setSettings] = useState<SiteSettings>(SettingsController.getSettings());
+  const [settings, setSettings] = useState<SiteSettings>(SettingsController.getSettingsSync());
 
   useEffect(() => {
-    setSettings(SettingsController.getSettings());
+    const fetchSettings = async () => {
+      const fetchedSettings = await SettingsController.getSettings();
+      setSettings(fetchedSettings);
+    };
+    fetchSettings();
   }, []);
 
   return (

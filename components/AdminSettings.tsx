@@ -11,7 +11,11 @@ const AdminSettings: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState(false);
 
   useEffect(() => {
-    setSettings(SettingsController.getSettings());
+    const fetchSettings = async () => {
+      const fetchedSettings = await SettingsController.getSettings();
+      setSettings(fetchedSettings);
+    };
+    fetchSettings();
   }, []);
 
   const handleChange = (field: keyof SiteSettings, value: any) => {

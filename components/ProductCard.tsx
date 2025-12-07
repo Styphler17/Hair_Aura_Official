@@ -18,9 +18,12 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onQuickView }) => {
   const [currency, setCurrency] = useState('GH₵');
 
   useEffect(() => {
-    const settings = SettingsController.getSettings();
-    setPhoneNumber(settings.phoneNumber);
-    setCurrency(settings.currencySymbol);
+    const fetchSettings = async () => {
+      const settings = await SettingsController.getSettings();
+      setPhoneNumber(settings.phoneNumber);
+      setCurrency(settings.currencySymbol);
+    };
+    fetchSettings();
     
     setInWishlist(WishlistService.isInWishlist(product.id));
     setInCart(CartService.isInCart(product.id));

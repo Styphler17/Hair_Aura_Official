@@ -5,10 +5,14 @@ import SEOHead from './SEOHead';
 import { Loader } from 'lucide-react';
 
 const Maintenance: React.FC = () => {
-  const [settings, setSettings] = useState(SettingsController.getSettings());
+  const [settings, setSettings] = useState(SettingsController.getSettingsSync());
 
   useEffect(() => {
-    setSettings(SettingsController.getSettings());
+    const fetchSettings = async () => {
+      const fetchedSettings = await SettingsController.getSettings();
+      setSettings(fetchedSettings);
+    };
+    fetchSettings();
   }, []);
 
   return (

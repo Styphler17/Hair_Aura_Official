@@ -46,19 +46,35 @@ const initStorage = () => {
 };
 
 export const BlogController = {
-  getAll: (): BlogPost[] => {
-    initStorage();
-    const stored = localStorage.getItem(STORAGE_KEY);
-    return stored ? JSON.parse(stored) : INITIAL_BLOGS;
+  getAll: async (): Promise<BlogPost[]> => {
+    try {
+      const response = await fetch('https://hair-aura.debesties.com/api/get_blog_posts.php');
+      const data = await response.json();
+      return Array.isArray(data) ? data : [];
+    } catch (error) {
+      console.error("Error fetching blog posts:", error);
+      // Fallback to LocalStorage if API fails
+      initStorage();
+      const stored = localStorage.getItem(STORAGE_KEY);
+      return stored ? JSON.parse(stored) : INITIAL_BLOGS;
+    }
   },
 
-  getById: (id: string): BlogPost | undefined => {
-    const blogs = BlogController.getAll();
-    return blogs.find(b => b.id === id);
+  getById: async (id: string): Promise<BlogPost | undefined> => {
+    try {
+      const response = await fetch(`https://hair-aura.debesties.com/api/get_blog_posts.php?id=${id}`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      console.error("Error fetching blog post:", error);
+      // Fallback to LocalStorage
+      const blogs = await BlogController.getAll();
+      return blogs.find(b => b.id === id);
+    }
   },
 
-  create: (data: Omit<BlogPost, 'id' | 'date'>): BlogPost => {
-    const blogs = BlogController.getAll();
+  create: async (data: Omit<BlogPost, 'id' | 'date'>): Promise<BlogPost> => {
+    const blogs = await BlogController.getAll();
     const newPost: BlogPost = {
       ...data,
       id: Date.now().toString(),
@@ -69,8 +85,8 @@ export const BlogController = {
     return newPost;
   },
 
-  update: (id: string, updates: Partial<BlogPost>): BlogPost | null => {
-    const blogs = BlogController.getAll();
+  update: async (id: string, updates: Partial<BlogPost>): Promise<BlogPost | null> => {
+    const blogs = await BlogController.getAll();
     const index = blogs.findIndex(b => b.id === id);
     if (index === -1) return null;
 
@@ -80,8 +96,8 @@ export const BlogController = {
     return updated;
   },
 
-  delete: (id: string): void => {
-    const blogs = BlogController.getAll();
+  delete: async (id: string): Promise<void> => {
+    const blogs = await BlogController.getAll();
     const filtered = blogs.filter(b => b.id !== id);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
   }

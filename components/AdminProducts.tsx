@@ -31,8 +31,12 @@ const AdminProducts: React.FC = () => {
   });
 
   useEffect(() => {
+    const initSettings = async () => {
+      const settings = await SettingsController.getSettings();
+      setCurrency(settings.currencySymbol);
+    };
     refreshProducts();
-    setCurrency(SettingsController.getSettings().currencySymbol);
+    initSettings();
   }, []);
 
   const refreshProducts = async () => {

@@ -13,12 +13,16 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [settings, setSettings] = useState<SiteSettings>(SettingsController.getSettings());
+  const [settings, setSettings] = useState<SiteSettings>(SettingsController.getSettingsSync());
   const [wishlistCount, setWishlistCount] = useState(0);
   const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
-    setSettings(SettingsController.getSettings());
+    const fetchSettings = async () => {
+      const fetchedSettings = await SettingsController.getSettings();
+      setSettings(fetchedSettings);
+    };
+    fetchSettings();
     setWishlistCount(WishlistService.getWishlist().length);
     setCartCount(CartService.getCart().length);
 
@@ -30,8 +34,9 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
       setCartCount(CartService.getCart().length);
     };
 
-    const handleSettingsUpdate = () => {
-      setSettings(SettingsController.getSettings());
+    const handleSettingsUpdate = async () => {
+      const updatedSettings = await SettingsController.getSettings();
+      setSettings(updatedSettings);
     };
 
     window.addEventListener('wishlist-updated', handleWishlistUpdate);

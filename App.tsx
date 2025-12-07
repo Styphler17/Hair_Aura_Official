@@ -28,7 +28,7 @@ const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<string>('home');
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
-  const [settings, setSettings] = useState<SiteSettings>(SettingsController.getSettings());
+  const [settings, setSettings] = useState<SiteSettings>(SettingsController.getSettingsSync());
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -41,11 +41,15 @@ const App: React.FC = () => {
     }
 
     // Refresh settings on page change
-    const currentSettings = SettingsController.getSettings();
-    setSettings(currentSettings);
+    const fetchSettings = async () => {
+      const currentSettings = await SettingsController.getSettings();
+      setSettings(currentSettings);
+    };
+    fetchSettings();
     
-    const handleSettingsUpdate = () => {
-      setSettings(SettingsController.getSettings());
+    const handleSettingsUpdate = async () => {
+      const updatedSettings = await SettingsController.getSettings();
+      setSettings(updatedSettings);
     };
     
     window.addEventListener('settings-updated', handleSettingsUpdate);

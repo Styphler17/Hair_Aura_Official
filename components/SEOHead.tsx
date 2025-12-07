@@ -11,8 +11,9 @@ interface SEOHeadProps {
 
 const SEOHead: React.FC<SEOHeadProps> = ({ title, description, keywords, image }) => {
   useEffect(() => {
-    const settings = SettingsController.getSettings();
-    const siteTitle = `${title} | Hair Aura Ghana`;
+    const updateSEO = async () => {
+      const settings = await SettingsController.getSettings();
+      const siteTitle = `${title} | Hair Aura Ghana`;
     
     // Update Document Title
     document.title = siteTitle;
@@ -65,7 +66,8 @@ const SEOHead: React.FC<SEOHeadProps> = ({ title, description, keywords, image }
       }
       link.href = settings.favicon;
     }
-
+    };
+    updateSEO();
   }, [title, description, keywords, image]);
 
   return null;

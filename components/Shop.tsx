@@ -2,7 +2,7 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import ProductCard from './ProductCard';
 import { ProductController } from '../backend/controllers/productController';
-import { Product } from '../backend/models';
+import { Product, SiteSettings } from '../backend/models';
 import { ChevronDown, SlidersHorizontal, X, Search, ChevronLeft, ChevronRight, Filter } from 'lucide-react';
 import SEOHead from './SEOHead';
 import { SettingsController } from '../backend/controllers/settingsController';
@@ -19,6 +19,7 @@ const Shop: React.FC<ShopProps> = ({ onNavigate }) => {
   const [isSortOpen, setIsSortOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [settings, setSettings] = useState<SiteSettings>(SettingsController.getSettingsSync());
   
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -365,7 +366,7 @@ const Shop: React.FC<ShopProps> = ({ onNavigate }) => {
            <h3 className="font-serif text-2xl mb-4">Need something specific?</h3>
            <p className="text-neutral-500 text-sm mb-8 max-w-md mx-auto">We offer custom lengths, textures, and colors upon request. Chat with our specialists to build your dream unit.</p>
            <a 
-             href={`https://wa.me/${SettingsController.getSettings().phoneNumber}?text=${encodeURIComponent(customOrderMessage)}`} 
+             href={`https://wa.me/${settings.phoneNumber}?text=${encodeURIComponent(customOrderMessage)}`} 
              target="_blank" 
              rel="noopener noreferrer" 
              className="inline-block bg-aura-black text-white px-10 py-4 uppercase text-xs font-bold tracking-widest hover:bg-neutral-800 transition-colors w-full sm:w-auto"
@@ -393,7 +394,7 @@ const Shop: React.FC<ShopProps> = ({ onNavigate }) => {
                           </div>
                           <div className="w-full md:w-1/2 flex flex-col justify-center">
                               <h2 className="font-serif text-3xl font-bold mb-2">{quickViewProduct.name}</h2>
-                              <p className="text-xl font-bold mb-4 text-aura-black">{SettingsController.getSettings().currencySymbol}{quickViewProduct.price.toLocaleString()}</p>
+                              <p className="text-xl font-bold mb-4 text-aura-black">{settings.currencySymbol}{quickViewProduct.price.toLocaleString()}</p>
                               <p className="text-neutral-600 mb-6 font-light">{quickViewProduct.description}</p>
                               
                               <button 

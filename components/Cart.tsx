@@ -16,10 +16,13 @@ const Cart: React.FC<CartProps> = ({ onNavigate }) => {
   const [phoneNumber, setPhoneNumber] = useState('');
 
   useEffect(() => {
-    setItems(CartService.getCart());
-    const settings = SettingsController.getSettings();
-    setCurrency(settings.currencySymbol);
-    setPhoneNumber(settings.phoneNumber);
+    const fetchData = async () => {
+      setItems(CartService.getCart());
+      const settings = await SettingsController.getSettings();
+      setCurrency(settings.currencySymbol);
+      setPhoneNumber(settings.phoneNumber);
+    };
+    fetchData();
 
     const handleUpdate = () => {
       setItems(CartService.getCart());

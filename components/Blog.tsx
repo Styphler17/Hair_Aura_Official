@@ -13,8 +13,12 @@ const Blog: React.FC<BlogProps> = ({ onNavigate }) => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
 
   useEffect(() => {
-    setPosts(BlogController.getAll());
-    window.scrollTo(0,0);
+    const fetchPosts = async () => {
+      const posts = await BlogController.getAll();
+      setPosts(posts);
+      window.scrollTo(0,0);
+    };
+    fetchPosts();
   }, []);
 
   return (

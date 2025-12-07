@@ -22,8 +22,9 @@ const AdminBlog: React.FC = () => {
     refreshPosts();
   }, []);
 
-  const refreshPosts = () => {
-    setPosts(BlogController.getAll());
+  const refreshPosts = async () => {
+    const posts = await BlogController.getAll();
+    setPosts(posts);
   };
 
   const handleOpenModal = (post?: BlogPost) => {

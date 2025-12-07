@@ -20,15 +20,17 @@ const Home: React.FC<HomeProps> = ({ onShopClick, onNavigate }) => {
   const blogScrollRef = useRef<HTMLDivElement>(null);
   const [featuredProducts, setFeaturedProducts] = useState<Product[]>([]);
   const [latestBlogs, setLatestBlogs] = useState<BlogPost[]>([]);
-  const [settings, setSettings] = useState<SiteSettings>(SettingsController.getSettings());
+  const [settings, setSettings] = useState<SiteSettings>(SettingsController.getSettingsSync());
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         const allProducts = await ProductController.getAll();
+        const blogs = await BlogController.getAll();
+        const fetchedSettings = await SettingsController.getSettings();
         setFeaturedProducts(allProducts.slice(0, 3));
-        setLatestBlogs(BlogController.getAll().slice(0, 5));
-        setSettings(SettingsController.getSettings());
+        setLatestBlogs(blogs.slice(0, 5));
+        setSettings(fetchedSettings);
       } catch (error) {
         console.error("Error loading featured products:", error);
       }

@@ -30,7 +30,7 @@ const ProductDetails: React.FC<ProductDetailsProps> = ({ productId, onNavigate }
       try {
         const allProducts = await ProductController.getAll();
         const found = allProducts.find(p => p.id === productId);
-        const settings = SettingsController.getSettings();
+        const settings = await SettingsController.getSettings();
         setPhoneNumber(settings.phoneNumber);
         setCurrency(settings.currencySymbol);
         setSiteUrl(window.location.origin);

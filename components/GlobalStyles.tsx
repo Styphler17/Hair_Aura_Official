@@ -4,8 +4,8 @@ import { SettingsController } from '../backend/controllers/settingsController';
 
 const GlobalStyles: React.FC = () => {
   useEffect(() => {
-    const updateColors = () => {
-      const settings = SettingsController.getSettings();
+    const updateColors = async () => {
+      const settings = await SettingsController.getSettings();
       const root = document.documentElement;
 
       // Primary / Text Color (aura-black)

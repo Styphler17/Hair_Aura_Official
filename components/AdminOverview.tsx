@@ -27,9 +27,9 @@ const AdminOverview: React.FC<{ onNavigate: (page: string) => void }> = ({ onNav
     const fetchData = async () => {
       try {
         const products = await ProductController.getAll();
-        const blogs = BlogController.getAll();
+        const blogs = await BlogController.getAll();
         const admins = AuthController.getUsers();
-        const settings = SettingsController.getSettings();
+        const settings = await SettingsController.getSettings();
 
         // Calculate Stats
         const totalValue = products.reduce((acc, curr) => acc + curr.price, 0);

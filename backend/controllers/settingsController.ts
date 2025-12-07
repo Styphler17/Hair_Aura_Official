@@ -42,7 +42,8 @@ const DEFAULT_SETTINGS: SiteSettings = {
 };
 
 export const SettingsController = {
-  getSettings: (): SiteSettings => {
+  // Synchronous version for initial state (returns defaults)
+  getSettingsSync: (): SiteSettings => {
     if (typeof window === 'undefined') return DEFAULT_SETTINGS;
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
@@ -56,7 +57,6 @@ export const SettingsController = {
         colorText: parsed.colorText || parsed.brandColor || DEFAULT_SETTINGS.colorText,
         colorBackground: parsed.colorBackground || DEFAULT_SETTINGS.colorBackground,
         colorAccent: parsed.colorAccent || DEFAULT_SETTINGS.colorAccent,
-        // Ensure new fields have defaults if loading from old storage
         aboutTitle: parsed.aboutTitle || DEFAULT_SETTINGS.aboutTitle,
         aboutContent: parsed.aboutContent || DEFAULT_SETTINGS.aboutContent,
         contactTitle: parsed.contactTitle || DEFAULT_SETTINGS.contactTitle,
@@ -65,6 +65,62 @@ export const SettingsController = {
       };
     }
     return DEFAULT_SETTINGS;
+  },
+
+  // Async version that fetches from API
+  getSettings: async (): Promise<SiteSettings> => {
+    if (typeof window === 'undefined') return DEFAULT_SETTINGS;
+    
+    try {
+      const response = await fetch('https://hair-aura.debesties.com/api/get_settings.php');
+      const data = await response.json();
+      
+      // Map database fields to frontend format
+      return {
+        phoneNumber: data.phone_number || DEFAULT_SETTINGS.phoneNumber,
+        address: data.address || DEFAULT_SETTINGS.address,
+        currencySymbol: data.currency_symbol || DEFAULT_SETTINGS.currencySymbol,
+        colorText: data.color_text || DEFAULT_SETTINGS.colorText,
+        colorBackground: data.color_background || DEFAULT_SETTINGS.colorBackground,
+        colorAccent: data.color_accent || DEFAULT_SETTINGS.colorAccent,
+        logo: data.logo || DEFAULT_LOGO,
+        favicon: data.favicon || DEFAULT_FAVICON,
+        defaultSocialImage: data.default_social_image || DEFAULT_HERO_IMAGE,
+        heroImage: data.hero_image || DEFAULT_HERO_IMAGE,
+        heroHeadline: data.hero_headline || DEFAULT_SETTINGS.heroHeadline,
+        heroSubheadline: data.hero_subheadline || DEFAULT_SETTINGS.heroSubheadline,
+        heroCtaText: data.hero_cta_text || DEFAULT_SETTINGS.heroCtaText,
+        aboutTitle: data.about_title || DEFAULT_SETTINGS.aboutTitle,
+        aboutContent: data.about_content || DEFAULT_SETTINGS.aboutContent,
+        contactTitle: data.contact_title || DEFAULT_SETTINGS.contactTitle,
+        contactContent: data.contact_content || DEFAULT_SETTINGS.contactContent,
+        maintenanceMode: data.maintenance_mode || false,
+        socialLinks: data.socialLinks || DEFAULT_SETTINGS.socialLinks,
+      };
+    } catch (error) {
+      console.error("Error fetching settings:", error);
+      // Fallback to LocalStorage if API fails
+      const stored = localStorage.getItem(STORAGE_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        return {
+          ...DEFAULT_SETTINGS,
+          ...parsed,
+          logo: parsed.logo || DEFAULT_LOGO,
+          favicon: parsed.favicon || DEFAULT_FAVICON,
+          defaultSocialImage: parsed.defaultSocialImage || DEFAULT_HERO_IMAGE,
+          colorText: parsed.colorText || parsed.brandColor || DEFAULT_SETTINGS.colorText,
+          colorBackground: parsed.colorBackground || DEFAULT_SETTINGS.colorBackground,
+          colorAccent: parsed.colorAccent || DEFAULT_SETTINGS.colorAccent,
+          aboutTitle: parsed.aboutTitle || DEFAULT_SETTINGS.aboutTitle,
+          aboutContent: parsed.aboutContent || DEFAULT_SETTINGS.aboutContent,
+          contactTitle: parsed.contactTitle || DEFAULT_SETTINGS.contactTitle,
+          contactContent: parsed.contactContent || DEFAULT_SETTINGS.contactContent,
+          maintenanceMode: parsed.maintenanceMode || false,
+        };
+      }
+      return DEFAULT_SETTINGS;
+    }
   },
 
   updateSettings: (settings: SiteSettings): SiteSettings => {
