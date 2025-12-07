@@ -1,35 +1,33 @@
-import { GoogleGenAI } from "@google/genai";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 import { SYSTEM_INSTRUCTION } from '../constants';
 
-const apiKey = process.env.API_KEY || ''; 
+const apiKey = import.meta.env.VITE_API_KEY || process.env.API_KEY || ''; 
 
 // We initialize loosely to avoid crashing if env is missing during dev, 
 // but in prod it is required.
-const ai = new GoogleGenAI({ apiKey });
+const genAI = new GoogleGenerativeAI(apiKey);
 
 export const createChatStream = async (history: {role: 'user' | 'model', text: string}[], newMessage: string) => {
   if (!apiKey) {
     throw new Error("API Key not configured");
   }
 
-  // Convert history to format expected by SDK if needed, 
-  // or just use the chat session state. 
-  // Here we will use a fresh chat session logic for simplicity or maintain it in component.
-  
-  const chat = ai.chats.create({
-    model: 'gemini-2.5-flash',
-    config: {
-      systemInstruction: SYSTEM_INSTRUCTION,
-    },
-    history: history.map(h => ({
-      role: h.role,
-      parts: [{ text: h.text }]
-    }))
+  const model = genAI.getGenerativeModel({ 
+    model: 'gemini-2.0-flash-exp',
+    systemInstruction: SYSTEM_INSTRUCTION,
   });
 
-  const result = await chat.sendMessageStream({
-    message: newMessage
+  // Convert history to format expected by SDK
+  const chatHistory = history.map(h => ({
+    role: h.role === 'user' ? 'user' : 'model',
+    parts: [{ text: h.text }]
+  }));
+
+  const chat = model.startChat({
+    history: chatHistory,
   });
 
-  return result;
+  const result = await chat.sendMessageStream(newMessage);
+
+  return result.stream;
 };

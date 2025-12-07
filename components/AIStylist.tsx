@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Sparkles, Send, X, MessageSquare } from 'lucide-react';
 import { createChatStream } from '../services/geminiService';
 import { ChatMessage } from '../types';
-import { GenerateContentResponse } from "@google/genai";
 
 const AIStylist: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -39,9 +38,9 @@ const AIStylist: React.FC = () => {
       setMessages(prev => [...prev, { role: 'model', text: '' }]); // Placeholder
 
       for await (const chunk of streamResult) {
-        const c = chunk as GenerateContentResponse;
-        if (c.text) {
-           fullResponseText += c.text;
+        const chunkText = chunk.text();
+        if (chunkText) {
+           fullResponseText += chunkText;
            setMessages(prev => {
              const newArr = [...prev];
              newArr[newArr.length - 1] = { role: 'model', text: fullResponseText };
