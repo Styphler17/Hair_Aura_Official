@@ -50,10 +50,15 @@ export const BlogController = {
     try {
       const response = await fetch('https://hair-aura.debesties.com/api/get_blog_posts.php');
       const data = await response.json();
-      return Array.isArray(data) ? data : [];
+      
+      if (response.ok && Array.isArray(data)) {
+        return data;
+      }
+      
+      throw new Error('Invalid response from API');
     } catch (error) {
-      console.error("Error fetching blog posts:", error);
-      // Fallback to LocalStorage if API fails
+      console.error("Error fetching blog posts from API, using localStorage fallback:", error);
+      // Fallback to LocalStorage only if API fails
       initStorage();
       const stored = localStorage.getItem(STORAGE_KEY);
       return stored ? JSON.parse(stored) : INITIAL_BLOGS;
@@ -64,9 +69,14 @@ export const BlogController = {
     try {
       const response = await fetch(`https://hair-aura.debesties.com/api/get_blog_posts.php?id=${id}`);
       const data = await response.json();
-      return data;
+      
+      if (response.ok && data && !data.error) {
+        return data;
+      }
+      
+      throw new Error(data.error || 'Blog post not found');
     } catch (error) {
-      console.error("Error fetching blog post:", error);
+      console.error("Error fetching blog post from API, using localStorage fallback:", error);
       // Fallback to LocalStorage
       const blogs = await BlogController.getAll();
       return blogs.find(b => b.id === id);
@@ -74,31 +84,129 @@ export const BlogController = {
   },
 
   create: async (data: Omit<BlogPost, 'id' | 'date'>): Promise<BlogPost> => {
-    const blogs = await BlogController.getAll();
-    const newPost: BlogPost = {
-      ...data,
-      id: Date.now().toString(),
-      date: new Date().toISOString()
-    };
-    const updated = [newPost, ...blogs];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
-    return newPost;
+    try {
+      const response = await fetch('https://hair-aura.debesties.com/api/save_blog_post.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'create',
+          ...data
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (response.ok && result.success) {
+        // Return the created post from API response
+        const newPost: BlogPost = {
+          ...data,
+          id: result.id,
+          date: new Date().toISOString()
+        };
+        return newPost;
+      }
+      
+      throw new Error(result.error || 'Failed to create blog post');
+    } catch (error) {
+      console.error("Error creating blog post via API, using localStorage fallback:", error);
+      // Fallback to LocalStorage only if API fails
+      initStorage();
+      const blogs = await BlogController.getAll();
+      const newPost: BlogPost = {
+        ...data,
+        id: Date.now().toString(),
+        date: new Date().toISOString()
+      };
+      const updated = [newPost, ...blogs];
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(updated));
+      return newPost;
+    }
   },
 
   update: async (id: string, updates: Partial<BlogPost>): Promise<BlogPost | null> => {
-    const blogs = await BlogController.getAll();
-    const index = blogs.findIndex(b => b.id === id);
-    if (index === -1) return null;
+    try {
+      // First get the existing post from API
+      const existing = await BlogController.getById(id);
+      if (!existing) {
+        console.error("Blog post not found with id:", id);
+        return null;
+      }
 
-    const updated = { ...blogs[index], ...updates };
-    blogs[index] = updated;
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(blogs));
-    return updated;
+      const updatedData = { ...existing, ...updates };
+      
+      // Ensure date is in ISO format for API
+      if (updatedData.date && !updatedData.date.includes('T')) {
+        updatedData.date = new Date(updatedData.date).toISOString();
+      }
+
+      const response = await fetch('https://hair-aura.debesties.com/api/save_blog_post.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          action: 'update',
+          id: id,
+          title: updatedData.title,
+          excerpt: updatedData.excerpt,
+          content: updatedData.content,
+          image: updatedData.image,
+          author: updatedData.author,
+          date: updatedData.date,
+          seoDescription: updatedData.seoDescription
+        }),
+      });
+
+      const result = await response.json();
+      
+      if (response.ok && result.success) {
+        // Return updated data from API
+        return updatedData;
+      }
+      
+      throw new Error(result.error || 'Failed to update blog post');
+    } catch (error) {
+      console.error("Error updating blog post via API, using localStorage fallback:", error);
+      // Fallback to LocalStorage only if API fails
+      initStorage();
+      const blogs = await BlogController.getAll();
+      const index = blogs.findIndex(b => b.id === id);
+      if (index === -1) return null;
+
+      const updated = { ...blogs[index], ...updates };
+      blogs[index] = updated;
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(blogs));
+      return updated;
+    }
   },
 
   delete: async (id: string): Promise<void> => {
-    const blogs = await BlogController.getAll();
-    const filtered = blogs.filter(b => b.id !== id);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    try {
+      const response = await fetch('https://hair-aura.debesties.com/api/delete_blog_post.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id }),
+      });
+
+      const result = await response.json();
+      
+      if (response.ok && result.success) {
+        // Successfully deleted from API, no localStorage update needed
+        return;
+      }
+      
+      throw new Error(result.error || 'Failed to delete blog post');
+    } catch (error) {
+      console.error("Error deleting blog post via API, using localStorage fallback:", error);
+      // Fallback to LocalStorage only if API fails
+      initStorage();
+      const blogs = await BlogController.getAll();
+      const filtered = blogs.filter(b => b.id !== id);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+    }
   }
 };

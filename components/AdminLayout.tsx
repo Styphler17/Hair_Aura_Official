@@ -91,12 +91,14 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children, currentPage, onNavi
         </nav>
 
         <div className="p-6 border-t border-neutral-100 bg-white">
-          <button 
-            onClick={() => onNavigate('home')}
+          <a 
+            href="/"
+            target="_blank"
+            rel="noopener noreferrer"
             className="flex items-center gap-3 px-4 py-3 text-xs font-bold uppercase tracking-widest text-neutral-500 hover:text-aura-gold transition-colors w-full mb-3 border border-neutral-200 hover:border-aura-gold rounded-sm justify-center"
           >
             <ExternalLink size={14} /> View Live Site
-          </button>
+          </a>
           <button 
             onClick={onLogout}
             className="flex items-center gap-3 px-4 py-3 text-xs font-bold uppercase tracking-widest text-white bg-aura-black hover:bg-neutral-800 rounded-sm w-full transition-colors justify-center"

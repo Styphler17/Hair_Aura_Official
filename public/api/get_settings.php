@@ -2,10 +2,34 @@
 // api/get_settings.php
 require 'db_connect.php';
 
+// Check if settings row exists, if not create it with defaults
+$checkSql = "SELECT COUNT(*) as count FROM site_settings WHERE id = 1";
+$checkResult = $conn->query($checkSql);
+$checkRow = $checkResult->fetch_assoc();
+
+if ($checkRow['count'] == 0) {
+    // Create default settings row
+    $insertSql = "INSERT INTO site_settings (
+        id, phone_number, address, currency_symbol,
+        color_text, color_background, color_accent,
+        about_title, contact_title, maintenance_mode
+    ) VALUES (
+        1, '233508007873', 'Odumase GA West Accra, Ghana', 'GH₵',
+        '#0a0a0a', '#ffffff', '#D4AF37',
+        'Our Story', 'Get in Touch', 0
+    )";
+    
+    if (!$conn->query($insertSql)) {
+        http_response_code(500);
+        echo json_encode(['error' => 'Failed to create default settings: ' . $conn->error]);
+        $conn->close();
+        exit;
+    }
+}
+
+// Fetch settings
 $sql = "SELECT * FROM site_settings WHERE id = 1 LIMIT 1";
 $result = $conn->query($sql);
-
-$settings = null;
 
 if ($result->num_rows > 0) {
     $settings = $result->fetch_assoc();
@@ -25,33 +49,14 @@ if ($result->num_rows > 0) {
     }
     
     $settings['socialLinks'] = $socialLinks;
+    
+    echo json_encode($settings);
 } else {
-    // Return default settings if none exist
-    $settings = [
-        'id' => 1,
-        'phone_number' => '',
-        'address' => '',
-        'currency_symbol' => 'GH₵',
-        'color_text' => '#0a0a0a',
-        'color_background' => '#ffffff',
-        'color_accent' => '#D4AF37',
-        'logo' => null,
-        'favicon' => null,
-        'default_social_image' => null,
-        'hero_image' => null,
-        'hero_headline' => null,
-        'hero_subheadline' => null,
-        'hero_cta_text' => null,
-        'about_title' => 'Our Story',
-        'about_content' => null,
-        'contact_title' => 'Get in Touch',
-        'contact_content' => null,
-        'maintenance_mode' => false,
-        'socialLinks' => []
-    ];
+    // This should not happen after the insert above, but handle it anyway
+    http_response_code(500);
+    echo json_encode(['error' => 'Failed to retrieve settings']);
 }
 
-echo json_encode($settings);
 $conn->close();
 ?>
 

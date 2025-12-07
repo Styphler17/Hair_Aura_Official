@@ -85,9 +85,9 @@ export const SettingsController = {
         colorText: data.color_text || DEFAULT_SETTINGS.colorText,
         colorBackground: data.color_background || DEFAULT_SETTINGS.colorBackground,
         colorAccent: data.color_accent || DEFAULT_SETTINGS.colorAccent,
-        logo: data.logo || DEFAULT_LOGO,
-        favicon: data.favicon || DEFAULT_FAVICON,
-        defaultSocialImage: data.default_social_image || DEFAULT_HERO_IMAGE,
+        logo: (data.logo && data.logo.trim() !== '') ? data.logo : DEFAULT_LOGO,
+        favicon: (data.favicon && data.favicon.trim() !== '') ? data.favicon : DEFAULT_FAVICON,
+        defaultSocialImage: (data.default_social_image && data.default_social_image.trim() !== '') ? data.default_social_image : DEFAULT_HERO_IMAGE,
         heroImage: data.hero_image || DEFAULT_HERO_IMAGE,
         heroHeadline: data.hero_headline || DEFAULT_SETTINGS.heroHeadline,
         heroSubheadline: data.hero_subheadline || DEFAULT_SETTINGS.heroSubheadline,
@@ -125,15 +125,37 @@ export const SettingsController = {
     }
   },
 
-  updateSettings: (settings: SiteSettings): SiteSettings => {
+  updateSettings: async (settings: SiteSettings): Promise<SiteSettings> => {
     const safeSettings = {
         ...settings,
         logo: settings.logo || DEFAULT_LOGO,
         favicon: settings.favicon || DEFAULT_FAVICON
     };
     
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(safeSettings));
-    window.dispatchEvent(new Event('settings-updated'));
-    return safeSettings;
+    try {
+      const response = await fetch('https://hair-aura.debesties.com/api/update_settings.php', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(safeSettings),
+      });
+
+      const result = await response.json();
+      
+      if (response.ok && result.success) {
+        // Successfully updated via API, dispatch event for UI updates
+        window.dispatchEvent(new Event('settings-updated'));
+        return safeSettings;
+      }
+      
+      throw new Error(result.error || 'Failed to update settings');
+    } catch (error) {
+      console.error("Error updating settings via API, using localStorage fallback:", error);
+      // Fallback to LocalStorage only if API fails
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(safeSettings));
+      window.dispatchEvent(new Event('settings-updated'));
+      return safeSettings;
+    }
   }
 };

@@ -24,12 +24,20 @@ const AdminSettings: React.FC = () => {
     }
   };
 
-  const handleSave = (e: React.FormEvent) => {
+  const handleSave = async (e: React.FormEvent) => {
     e.preventDefault();
     if (settings) {
-      SettingsController.updateSettings(settings);
-      setSuccessMsg('Settings updated successfully. Changes applied globally.');
-      setTimeout(() => setSuccessMsg(''), 3000);
+      setIsProcessing(true);
+      try {
+        await SettingsController.updateSettings(settings);
+        setSuccessMsg('Settings updated successfully. Changes applied globally.');
+        setTimeout(() => setSuccessMsg(''), 3000);
+      } catch (error) {
+        console.error("Error saving settings:", error);
+        alert("Failed to save settings. Please try again.");
+      } finally {
+        setIsProcessing(false);
+      }
     }
   };
 

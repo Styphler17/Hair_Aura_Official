@@ -2,12 +2,15 @@
 import React, { useState, useEffect } from 'react';
 import { BlogController } from '../backend/controllers/blogController';
 import { BlogPost } from '../backend/models';
-import { Trash2, Plus, X, Edit2, ImageIcon } from 'lucide-react';
+import { Trash2, Plus, X, Edit2, ImageIcon, Upload, Link, Loader } from 'lucide-react';
+import { validateFile } from '../utils/fileHelpers';
 
 const AdminBlog: React.FC = () => {
   const [posts, setPosts] = useState<BlogPost[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [uploadMode, setUploadMode] = useState<'url' | 'file'>('file');
   
   const [formData, setFormData] = useState({
     title: '',
@@ -45,24 +48,57 @@ const AdminBlog: React.FC = () => {
     setIsModalOpen(true);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const postData = { ...formData };
 
-    if (editingId) {
-      BlogController.update(editingId, postData);
-    } else {
-      BlogController.create(postData);
+    try {
+      if (editingId) {
+        await BlogController.update(editingId, postData);
+      } else {
+        await BlogController.create(postData);
+      }
+      
+      setIsModalOpen(false);
+      refreshPosts();
+    } catch (error) {
+      console.error("Error saving blog post:", error);
+      alert("Failed to save blog post. Please try again.");
     }
-    
-    setIsModalOpen(false);
-    refreshPosts();
   };
 
-  const handleDelete = (id: string) => {
+  const handleDelete = async (id: string) => {
     if (window.confirm('Delete this post?')) {
-      BlogController.delete(id);
-      refreshPosts();
+      try {
+        await BlogController.delete(id);
+        refreshPosts();
+      } catch (error) {
+        console.error("Error deleting blog post:", error);
+        alert("Failed to delete blog post. Please try again.");
+      }
+    }
+  };
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const error = validateFile(file, 'image');
+      if (error) {
+        alert(error);
+        return;
+      }
+
+      setIsProcessing(true);
+      try {
+        const { uploadFile } = await import('../services/uploadService');
+        const uploadedUrl = await uploadFile(file);
+        setFormData({ ...formData, image: uploadedUrl });
+      } catch (err) {
+        console.error("Upload failed", err);
+        alert("Failed to upload image. Please try again.");
+      } finally {
+        setIsProcessing(false);
+      }
     }
   };
 
@@ -170,15 +206,75 @@ const AdminBlog: React.FC = () => {
                    />
                 </div>
                 <div>
-                   <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-aura-black">Thumbnail URL</label>
-                   <input 
-                     type="text" 
-                     placeholder="https://..."
-                     className="w-full bg-white border border-neutral-300 p-3 text-sm text-aura-black focus:outline-none focus:border-aura-gold focus:ring-1 focus:ring-aura-gold transition-all"
-                     value={formData.image}
-                     onChange={e => setFormData({...formData, image: e.target.value})}
-                     style={inputStyle}
-                   />
+                   <label className="block text-xs font-bold uppercase tracking-widest mb-2 text-aura-black">Blog Image</label>
+                   
+                   {/* Upload Mode Toggle */}
+                   <div className="flex gap-2 mb-3">
+                     <button
+                       type="button"
+                       onClick={() => setUploadMode('file')}
+                       className={`flex-1 py-2 text-xs uppercase font-bold tracking-widest border ${uploadMode === 'file' ? 'bg-aura-black text-white border-aura-black' : 'bg-white text-neutral-500 border-neutral-200 hover:border-aura-black'}`}
+                     >
+                       <Upload size={14} className="inline mr-2" /> Upload File
+                     </button>
+                     <button
+                       type="button"
+                       onClick={() => setUploadMode('url')}
+                       className={`flex-1 py-2 text-xs uppercase font-bold tracking-widest border ${uploadMode === 'url' ? 'bg-aura-black text-white border-aura-black' : 'bg-white text-neutral-500 border-neutral-200 hover:border-aura-black'}`}
+                     >
+                       <Link size={14} className="inline mr-2" /> Use URL
+                     </button>
+                   </div>
+
+                   {uploadMode === 'file' ? (
+                     <div className="space-y-3">
+                       <label className="cursor-pointer block">
+                         <div className="w-full border-2 border-dashed border-neutral-300 bg-neutral-50 p-6 text-center hover:border-aura-gold hover:bg-neutral-100 transition-colors">
+                           {isProcessing ? (
+                             <div className="flex flex-col items-center gap-2">
+                               <Loader size={20} className="animate-spin text-aura-gold" />
+                               <span className="text-xs font-bold uppercase tracking-widest text-neutral-500">Uploading...</span>
+                             </div>
+                           ) : formData.image ? (
+                             <div className="space-y-2">
+                               <img src={formData.image} alt="Preview" className="w-full h-32 object-cover rounded-sm mx-auto" />
+                               <span className="text-xs font-bold uppercase tracking-widest text-neutral-500">Click to Change Image</span>
+                             </div>
+                           ) : (
+                             <div className="flex flex-col items-center gap-2">
+                               <Upload size={24} className="text-neutral-400" />
+                               <span className="text-xs font-bold uppercase tracking-widest mb-1">Click to Upload Image</span>
+                               <span className="text-[10px] text-neutral-400">JPG, PNG, WebP (Max 10MB)</span>
+                             </div>
+                           )}
+                         </div>
+                         <input 
+                           type="file" 
+                           accept="image/*" 
+                           className="hidden" 
+                           onChange={handleFileUpload}
+                           disabled={isProcessing}
+                         />
+                       </label>
+                     </div>
+                   ) : (
+                     <input 
+                       type="text" 
+                       placeholder="https://..."
+                       className="w-full bg-white border border-neutral-300 p-3 text-sm text-aura-black focus:outline-none focus:border-aura-gold focus:ring-1 focus:ring-aura-gold transition-all"
+                       value={formData.image}
+                       onChange={e => setFormData({...formData, image: e.target.value})}
+                       style={inputStyle}
+                     />
+                   )}
+
+                   {formData.image && uploadMode === 'url' && (
+                     <div className="mt-3">
+                       <img src={formData.image} alt="Preview" className="w-full h-32 object-cover rounded-sm" onError={(e) => {
+                         (e.target as HTMLImageElement).style.display = 'none';
+                       }} />
+                     </div>
+                   )}
                 </div>
               </div>
 

@@ -1,10 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { Menu, X, Heart, ShoppingBag } from 'lucide-react';
+import { Menu, X, Heart, ShoppingBag, Settings } from 'lucide-react';
 import { SettingsController } from '../backend/controllers/settingsController';
 import { WishlistService } from '../services/wishlistService';
 import { CartService } from '../services/cartService';
 import { SiteSettings } from '../backend/models';
+
+const ADMIN_AUTH_KEY = 'hair_aura_admin_authenticated';
 
 interface HeaderProps {
   onNavigate: (page: string) => void;
@@ -16,6 +18,7 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
   const [settings, setSettings] = useState<SiteSettings>(SettingsController.getSettingsSync());
   const [wishlistCount, setWishlistCount] = useState(0);
   const [cartCount, setCartCount] = useState(0);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
 
   useEffect(() => {
     const fetchSettings = async () => {
@@ -25,6 +28,24 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
     fetchSettings();
     setWishlistCount(WishlistService.getWishlist().length);
     setCartCount(CartService.getCart().length);
+    
+    // Check admin authentication status
+    const checkAdminAuth = () => {
+      setIsAdminAuthenticated(localStorage.getItem(ADMIN_AUTH_KEY) === 'true');
+    };
+    checkAdminAuth();
+    
+    // Listen for auth changes
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === ADMIN_AUTH_KEY) {
+        checkAdminAuth();
+      }
+    };
+    window.addEventListener('storage', handleStorageChange);
+    
+    // Also listen for custom event (for same-tab updates)
+    const handleAuthChange = () => checkAdminAuth();
+    window.addEventListener('admin-auth-changed', handleAuthChange);
 
     const handleWishlistUpdate = () => {
       setWishlistCount(WishlistService.getWishlist().length);
@@ -47,6 +68,8 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
       window.removeEventListener('wishlist-updated', handleWishlistUpdate);
       window.removeEventListener('cart-updated', handleCartUpdate);
       window.removeEventListener('settings-updated', handleSettingsUpdate);
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('admin-auth-changed', handleAuthChange);
     };
   }, []);
 
@@ -127,6 +150,17 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
               )}
             </button>
 
+            {isAdminAuthenticated && (
+              <button
+                onClick={() => onNavigate('admin-overview')}
+                className="px-4 py-2 rounded-sm uppercase text-xs tracking-widest hover:opacity-90 transition-opacity text-white flex items-center gap-2"
+                style={{ backgroundColor: settings.colorAccent }}
+                title="Admin Dashboard"
+              >
+                <Settings size={16} />
+                Admin
+              </button>
+            )}
             <a 
               href={`https://wa.me/${settings.phoneNumber}`} 
               target="_blank" 
@@ -176,6 +210,12 @@ const Header: React.FC<HeaderProps> = ({ onNavigate, currentPage }) => {
             ))}
             <button onClick={() => handleNav('wishlist')} className="block px-3 py-2 text-base font-medium uppercase tracking-widest" style={{ color: settings.colorText }}>My Wishlist ({wishlistCount})</button>
             <button onClick={() => handleNav('cart')} className="block px-3 py-2 text-base font-medium uppercase tracking-widest" style={{ color: settings.colorText }}>My Cart ({cartCount})</button>
+            {isAdminAuthenticated && (
+              <button onClick={() => handleNav('admin-overview')} className="block px-3 py-2 text-base font-medium uppercase tracking-widest flex items-center gap-2" style={{ color: settings.colorAccent }}>
+                <Settings size={18} />
+                Admin Dashboard
+              </button>
+            )}
           </div>
         </div>
       )}

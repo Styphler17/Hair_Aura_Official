@@ -24,10 +24,18 @@ import SEOHead from './components/SEOHead';
 import GlobalStyles from './components/GlobalStyles';
 import { Facebook, Twitter, Youtube } from 'lucide-react';
 
+const ADMIN_AUTH_KEY = 'hair_aura_admin_authenticated';
+
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<string>('home');
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
+    // Check localStorage on mount
+    if (typeof window !== 'undefined') {
+      return localStorage.getItem(ADMIN_AUTH_KEY) === 'true';
+    }
+    return false;
+  });
   const [settings, setSettings] = useState<SiteSettings>(SettingsController.getSettingsSync());
   const [isLoadingSettings, setIsLoadingSettings] = useState(true);
 
@@ -89,9 +97,17 @@ const App: React.FC = () => {
     // Admin Routes
     if (currentPage.startsWith('admin')) {
       if (!isAdminAuthenticated) {
-        return <AdminLogin onLogin={() => setIsAdminAuthenticated(true)} />;
+        return <AdminLogin onLogin={() => {
+          setIsAdminAuthenticated(true);
+          localStorage.setItem(ADMIN_AUTH_KEY, 'true');
+          window.dispatchEvent(new Event('admin-auth-changed'));
+        }} />;
       }
-      return <AdminDashboard currentPage={currentPage} onNavigate={handleNavigate} onLogout={() => setIsAdminAuthenticated(false)} />;
+      return <AdminDashboard currentPage={currentPage} onNavigate={handleNavigate} onLogout={() => {
+        setIsAdminAuthenticated(false);
+        localStorage.removeItem(ADMIN_AUTH_KEY);
+        window.dispatchEvent(new Event('admin-auth-changed'));
+      }} />;
     }
 
     // Maintenance Mode Check (only after settings are loaded to avoid flash)
